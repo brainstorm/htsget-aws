@@ -20,11 +20,11 @@ functions:
     handler: htsget.reads
     events:
       - http:
-          path: '/reads'
+          path: '/reads/{proxy+}'
           method: GET
   variants:
     handler: htsget.variants
     events:
       - http:
-          path: '/variants'
+          path: '/variants/{proxy+}'
           method: GET
