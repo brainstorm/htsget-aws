@@ -1,11 +1,17 @@
 use lambda_http::{lambda, IntoResponse, Request};
 use lambda_runtime::{error::HandlerError, Context};
 use serde_json::json;
+use rusoto_core::Region;
+use rusoto_athena;
 
 use htsget::query::read_header;
 
 fn main() {
     lambda!(handler)
+}
+
+fn athena_query() {
+    rusoto_core::Region::ApNortheast2.name(); // XXX
 }
 
 fn handler(
