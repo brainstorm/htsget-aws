@@ -2,13 +2,11 @@
 use lambda_http::{lambda, IntoResponse, Request};
 use lambda_runtime::{error::HandlerError, Context};
 use serde_json::json;
+use uuid::Uuid;
 
 // Rusoto
 use rusoto_core::Region;
-use rusoto_athena::{Athena, AthenaClient,
-                    StartQueryExecutionInput,
-                    GetQueryResultsOutput,
-                    GetQueryResultsInput};
+use rusoto_athena::*;
 
 use htsget::query::read_header;
 
@@ -23,15 +21,29 @@ fn athena_query(query: String) {
     //let creds = rusoto_core::DefaultCredentialsProvider(); 
     // XXX: InstanceProfile creds since this is a lambda instead of hardcoding region
     let client = AthenaClient::new(Region::ApSoutheast2);
-    // Define default Athena resultset structure
-    let mut athena_resultset = <StartQueryExecutionInput as Default>::default();
-    athena_resultset.query_string = query;
-    
-    // Make the actual query and display it
-    client.start_query_execution(athena_resultset);
-    let mut result_json: String = client.get_query_results(athena_resultset);
+    let request_token = Uuid::new_v4();
 
-    json!("athena_debug_resultset": result_json)
+    let query_input = StartQueryExecutionInput {
+        client_request_token: Some(request_token.to_string()),
+        query_execution_context: Some(QueryExecutionContext {
+            database: Some("adam".to_string())
+        }),
+        query_string: query,
+        result_configuration: Default::default(),
+        work_group: Default::default()
+    };
+
+    match client.start_query_execution(query_input).sync() {
+        Ok(output) => {
+            match output.query_execution_id {
+                Some(query_id) => println!("query running. id: {}", query_id),
+                None => println!("query running. no id found"),
+            } 
+        },
+        Err(error) => {
+            println!("Error: {:?}", error);
+        },
+    }
 }
 
 fn http_request_to_athena_query(uri_id: String) -> String {
