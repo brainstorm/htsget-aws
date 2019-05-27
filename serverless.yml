@@ -6,7 +6,7 @@ provider:
   region: ap-southeast-2
   endpointType: REGIONAL
 
-# reads.zip and variants.zip
+# Package reads.zip and variants.zip to deploy as corresponding endpoints
 package:
   individually: true
 
@@ -20,9 +20,9 @@ functions:
       - http:
           path: '/reads/{proxy+}'
           method: GET
-  variants:
-    handler: htsget.variants
-    events:
-      - http:
-          path: '/variants/{proxy+}'
-          method: GET
+  # variants:
+  #   handler: htsget.variants
+  #   events:
+  #     - http:
+  #         path: '/variants/{proxy+}'
+  #         method: GET

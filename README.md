@@ -30,6 +30,51 @@ $ adam-submit transformAlignments input.bam output.parquet
 $ parquet-tools cat -j part-r-00000.gz.parquet | jq
 ```
 
+## ADAM schema
+
+The parquet/ADAM-serialized BAMs have the following schema as slurped by AWS Glue:
+
+```
+referencename (string)
+start (bigint)
+originalstart (bigint)
+end (bigint)
+mappingquality (int)
+readname (string)
+sequence (string)
+quality (string)
+cigar (string)
+originalcigar (string)
+basestrimmedfromstart (int)
+basestrimmedfromend (int)
+readpaired (boolean)
+properpair (boolean)
+readmapped (boolean)
+matemapped (boolean)
+failedvendorqualitychecks (boolean)
+duplicateread (boolean)
+readnegativestrand (boolean)
+matenegativestrand (boolean)
+primaryalignment (boolean)
+secondaryalignment (boolean)
+supplementaryalignment (boolean)
+mismatchingpositions (string)
+originalquality (string)
+readgroupid (string)
+readgroupsampleid (string)
+matealignmentstart (bigint)
+matereferencename (string)
+insertsize (bigint)
+readinfragment (int)
+attributes (string)
+```
+
+So a typical SQL query for an incoming `htsget` id would be something like:
+
+```SQL
+SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';
+```
+
 # Wishlist
 
 1) If AWS/Google supported CRAM as they support Apache Parquet, the integration with other bioinfo tools toolchain, speedups and space savings could be quite remarkable.
