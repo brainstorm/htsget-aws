@@ -8,8 +8,6 @@ use uuid::Uuid;
 use rusoto_core::Region;
 use rusoto_athena::*;
 
-use htsget::query::read_header;
-
 fn main() {
     // Init env logger for debugging: https://www.rusoto.org/debugging.html
     let _ = env_logger::try_init();
@@ -25,10 +23,8 @@ fn athena_query(query: String) {
 
     let query_input = StartQueryExecutionInput {
         client_request_token: Some(request_token.to_string()),
-        query_execution_context: Some(QueryExecutionContext {
-            database: Some("adam".to_string())
-        }),
         query_string: query,
+        query_execution_context: Default::default(),
         result_configuration: Default::default(),
         work_group: Default::default()
     };
@@ -80,10 +76,9 @@ fn handler(
     let id_query = http_request_to_athena_query(req.uri().path().to_string());
     athena_query(id_query);
 
+//{"errorMessage":"JsonError: invalid type: null, expected a HeaderMap<HeaderValue> at line 1 column 84","errorType":"JsonError","stackTrace":null}
+
     Ok(json!({
-        "message": "Reads: Your function executed successfully!",
-        "bam_header": read_header(),
-        "request_body": req.body(),
-        "req_uri": req.uri().path()
+        "message": "Reads: Your function executed successfully!"
     }))
 }

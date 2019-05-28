@@ -2,9 +2,17 @@ service: htsget-aws
 provider:
   name: aws
   runtime: rust
+  tracing:
+    apiGateway: true
   memorySize: 128
   region: ap-southeast-2
   endpointType: REGIONAL
+  resourcePolicy:
+    - Effect: Allow
+      Principal: "*"
+      Action: athena:StartQueryExecution
+      Resource:
+        - arn:aws:athena:*:*:workgroup/primary
 
 # Package reads.zip and variants.zip to deploy as corresponding endpoints
 package:
@@ -18,11 +26,14 @@ functions:
     handler: htsget.reads
     events:
       - http:
+          authorizer: aws_iam
           path: '/reads/{proxy+}'
           method: GET
+
   # variants:
   #   handler: htsget.variants
   #   events:
   #     - http:
+  #         authorizer: aws_iam
   #         path: '/variants/{proxy+}'
   #         method: GET
