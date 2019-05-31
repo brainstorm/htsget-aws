@@ -75,6 +75,15 @@ So a typical SQL query for an incoming `htsget` id would be something like:
 SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';
 ```
 
+# Development
+
+Some handy dev shortcuts:
+
+```bash
+$ sls plugin install -n serverless-offline
+$ sls invoke local -f reads --path tests/rest/basic_reads_query.json
+```
+
 # Wishlist
 
 1) If AWS/Google supported CRAM as they support Apache Parquet, the integration with other bioinfo tools toolchain, speedups and space savings could be quite remarkable.

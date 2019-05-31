@@ -20,6 +20,7 @@ package:
 
 plugins:
   - serverless-rust
+  - serverless-offline
 
 functions:
   reads:

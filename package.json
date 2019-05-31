@@ -1,7 +1,9 @@
 {
   "devDependencies": {
     "serverless": "^1.44.1",
+    "serverless-offline": "^4.10.6",
     "serverless-rust": "^0.3.1"
   },
-  "name": "htsget-aws"
+  "name": "htsget-aws",
+  "dependencies": {}
 }

@@ -12,7 +12,7 @@ fn main() {
     // Init env logger for debugging: https://www.rusoto.org/debugging.html
     let _ = env_logger::try_init();
 
-    lambda!(handler)
+    lambda!(handler);
 }
 
 fn athena_query(query: String) {
