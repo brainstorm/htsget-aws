@@ -34,7 +34,7 @@ fn athena_query(query: String) {
             match output.query_execution_id {
                 Some(query_id) => println!("query running. id: {}", query_id),
                 None => println!("query running. no id found"),
-            } 
+            }
         },
         Err(error) => {
             println!("Error: {:?}", error);

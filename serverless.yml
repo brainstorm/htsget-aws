@@ -13,6 +13,11 @@ provider:
       Action: athena:StartQueryExecution
       Resource:
         - arn:aws:athena:*:*:workgroup/primary
+# enable apigw proxy for serverless-offline:
+# https://github.com/dherault/serverless-offline/tree/master#http-proxy
+custom:
+  serverless-offline:
+    resourceRoutes: true
 
 # Package reads.zip and variants.zip to deploy as corresponding endpoints
 package:
@@ -21,6 +26,7 @@ package:
 plugins:
   - serverless-rust
   - serverless-offline
+
 
 functions:
   reads:
