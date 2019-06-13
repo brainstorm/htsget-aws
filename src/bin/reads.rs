@@ -5,7 +5,6 @@ use serde_json::json;
 use uuid::Uuid;
 
 // Rusoto
-use rusoto_core::Region;
 use rusoto_athena::*;
 
 fn main() {
@@ -16,9 +15,7 @@ fn main() {
 }
 
 fn athena_query(query: String) {
-    //let creds = rusoto_core::DefaultCredentialsProvider(); 
-    // XXX: InstanceProfile creds since this is a lambda instead of hardcoding region
-    let client = AthenaClient::new(Region::ApSoutheast2);
+    let client = AthenaClient::new(Default::default());
     let request_token = Uuid::new_v4();
 
     let query_input = StartQueryExecutionInput {
@@ -38,6 +35,8 @@ fn athena_query(query: String) {
         },
         Err(error) => {
             println!("Error: {:?}", error);
+            //json!({"Error": error })
+            //XXX: Error: Service(InvalidRequest(""))
         },
     }
 }
@@ -61,22 +60,21 @@ fn http_request_to_athena_query(uri_id: String) -> String {
     let id = path_parts.pop().unwrap();
 
     // XXX: Parametrize for start/end and many others according to spec and backend schema
-    let sql_query = format!("SELECT referencename FROM htsget.adam WHERE referencename LIKE '{}';", id);
+    //let sql_query = "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string(); //XXX: id should be interpolated here
+    let sql_query = "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string(); //XXX: id should be interpolated here
+
+    println!("{:#?}: {:#?}", id, sql_query);
 
     return sql_query;
 }
 
 fn handler(
     req: Request,
-    _: Context,
+    _ctx: Context,
 ) -> Result<impl IntoResponse, HandlerError> {
-    // `serde_json::Values` impl `IntoResponse` by default
-    // creating an application/json response
 
-    let id_query = http_request_to_athena_query(req.uri().path().to_string());
-    athena_query(id_query);
-
-//{"errorMessage":"JsonError: invalid type: null, expected a HeaderMap<HeaderValue> at line 1 column 84","errorType":"JsonError","stackTrace":null}
+    let query = http_request_to_athena_query(req.uri().path().to_string());
+    athena_query(query);
 
     Ok(json!({
         "message": "Reads: Your function executed successfully!"
