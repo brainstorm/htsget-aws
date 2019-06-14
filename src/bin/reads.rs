@@ -63,7 +63,7 @@ fn http_request_to_athena_query(uri_id: String) -> String {
     //let sql_query = "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string(); //XXX: id should be interpolated here
     let sql_query = "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string(); //XXX: id should be interpolated here
 
-    println!("{:#?}: {:#?}", id, sql_query);
+    println!("{}: {}", id, sql_query);
 
     return sql_query;
 }
