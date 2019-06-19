@@ -1,0 +1,10 @@
+{
+  "httpMethod": "GET",
+  "path": "/chr1",
+  "queryStringParameters": {},
+  "headers": {
+      "user-agent": "ELB-HealthChecker/2.0"
+  },
+  "body": "",
+  "isBase64Encoded": false
+}

@@ -4,8 +4,13 @@ use lambda_runtime::{error::HandlerError, Context};
 use serde_json::json;
 use uuid::Uuid;
 
+// DotEnv
+#[macro_use]
+extern crate dotenv_codegen;
+
 // Rusoto
 use rusoto_athena::*;
+use rusoto_core::{Region};
 
 fn main() {
     // Init env logger for debugging: https://www.rusoto.org/debugging.html
@@ -15,14 +20,21 @@ fn main() {
 }
 
 fn athena_query(query: String) {
-    let client = AthenaClient::new(Default::default());
+//    let client = AthenaClient::new(Default::default());
+// XXX: Region out of here
+    let client = AthenaClient::new(Region::ApSoutheast2);
     let request_token = Uuid::new_v4();
 
     let query_input = StartQueryExecutionInput {
         client_request_token: Some(request_token.to_string()),
         query_string: query,
-        query_execution_context: Default::default(),
-        result_configuration: Default::default(),
+        query_execution_context: Some(QueryExecutionContext {
+            database: Some(dotenv!("AWS_ATHENA_DB").to_string())
+        }),
+        result_configuration: Some(ResultConfiguration {
+            encryption_configuration: None,
+            output_location: Some(dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string())
+        }),
         work_group: Default::default()
     };
 
@@ -35,8 +47,6 @@ fn athena_query(query: String) {
         },
         Err(error) => {
             println!("Error: {:?}", error);
-            //json!({"Error": error })
-            //XXX: Error: Service(InvalidRequest(""))
         },
     }
 }
