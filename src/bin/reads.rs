@@ -41,7 +41,7 @@ fn athena_query(query: String) {
     match client.start_query_execution(query_input).sync() {
         Ok(output) => {
             match output.query_execution_id {
-                Some(query_id) => println!("query running. id: {}", query_id),
+                Some(query_id) => process_athena_results(client, request_token, query_id),
                 None => println!("query running. no id found"),
             }
         },
@@ -49,6 +49,12 @@ fn athena_query(query: String) {
             println!("Error: {:?}", error);
         },
     }
+}
+
+fn process_athena_results(client: rusoto_athena::AthenaClient, query_token: uuid::Uuid, query_id: String){
+    println!("query running. id: {} with query token: {}", query_id, query_token.to_string());
+    //client.
+    //client.get_query_results(input: GetQueryResultsInput);
 }
 
 fn http_request_to_athena_query(uri_id: String) -> String {
