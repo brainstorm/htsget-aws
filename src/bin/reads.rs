@@ -25,6 +25,8 @@ fn athena_query(query: String) {
     let client = AthenaClient::new(Region::ApSoutheast2);
     let request_token = Uuid::new_v4();
 
+    println!(dotenv!("AWS_ATHENA_DB").to_string());
+
     let query_input = StartQueryExecutionInput {
         client_request_token: Some(request_token.to_string()),
         query_string: query,
@@ -41,7 +43,7 @@ fn athena_query(query: String) {
     match client.start_query_execution(query_input).sync() {
         Ok(output) => {
             match output.query_execution_id {
-                Some(query_id) => process_athena_results(client, request_token, query_id),
+                Some(query_id) => process_athena_results(request_token, query_id),
                 None => println!("query running. no id found"),
             }
         },
@@ -51,9 +53,25 @@ fn athena_query(query: String) {
     }
 }
 
-fn process_athena_results(client: rusoto_athena::AthenaClient, query_token: uuid::Uuid, query_id: String){
+fn process_athena_results(query_token: uuid::Uuid, query_id: String){
     println!("query running. id: {} with query token: {}", query_id, query_token.to_string());
-    //client.
+    let client = AthenaClient::new(Region::ApSoutheast2);// XXX: would it be wise to share this client?
+
+    match client.get_query_results(GetQueryResultsInput {
+        max_results: Default::default(),
+        query_execution_id: query_id,
+        next_token: Some(query_token.to_string())
+    }).sync() {
+        Ok(output) => {
+            match output.result_set {
+                Some(resultset) => println!("woot: {:#?}", resultset),
+                None => println!("nooo"),
+            }
+        },
+        Err(error) => {
+            println!("no resultset for you: {}", error)
+        },
+    }
     //client.get_query_results(input: GetQueryResultsInput);
 }
 
