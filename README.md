@@ -81,7 +81,7 @@ Some handy dev shortcuts:
 
 ```bash
 $ sls plugin install -n serverless-offline
-$ sls invoke local -f reads --path tests/rest/basic_reads_query.json
+$ sls deploy --profile default && sls invoke -f reads --path tests/rest/apigw_proxy_request.json
 ```
 
 # Wishlist
