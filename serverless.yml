@@ -11,6 +11,7 @@ provider:
     -  Effect: "Allow"
        Action:
          - "athena:StartQueryExecution"
+         - "athena:GetQueryResults"
        Resource:
          - arn:aws:athena:*
 
