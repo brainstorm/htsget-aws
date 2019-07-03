@@ -46,7 +46,7 @@ fn athena_query(query: String) {
             }
         },
         Err(error) => {
-            println!("Error: {:?}", error);
+            println!("Error: {:?}", error.description());
         },
     }
 }
