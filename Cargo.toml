@@ -3,6 +3,11 @@ name = "htsget"
 version = "0.1.0"
 edition = "2018"
 
+# XXX: interferes with lambdas?
+# [[bin]]
+# name = "hstget"
+# doc = false
+
 [dependencies]
 lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
