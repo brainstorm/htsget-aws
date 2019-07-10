@@ -11,11 +11,13 @@ edition = "2018"
 [dependencies]
 lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
-serde_json = "1.0.39"
-env_logger = "0.6.1"
+serde_json = "1.0.40"
+env_logger = "0.6.2"
 clap = "2.33.0"
 dotenv_codegen = "0.14.1"
 uuid = { version = "0.7.4", features = ["serde", "v4"] }
+futures = { version = "0.1.28" }
+tokio-core = { version = "0.1.17" }
 
 # https://www.rusoto.org/lambdas.html
 # """
