@@ -10,10 +10,13 @@
 // Runs: ERR148333 or /byRun/ERR148333
 
 // Futures/Async
+#![allow(unused_imports)]
+use futures::compat::Future01CompatExt as _;
+
 extern crate futures;
 extern crate tokio_core;
 
-use futures::future::Future;
+//use futures::future::Future;
 use tokio_core::reactor::Core;
 
 // AWS
@@ -99,4 +102,9 @@ fn athena_get_query_results(client: &AthenaClient, query_token: uuid::Uuid, quer
 
 fn athena_parse_query_results() {
     unimplemented!();
+}
+
+async fn athena_query_async() -> Result<(), Error> {
+    let client = AthenaClient::new(Region::ApSoutheast2);
+    client.start_query_execution(input: StartQueryExecutionInput)
 }

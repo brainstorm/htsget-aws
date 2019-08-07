@@ -16,7 +16,8 @@ env_logger = "0.6.2"
 clap = "2.33.0"
 dotenv_codegen = "0.14.1"
 uuid = { version = "0.7.4", features = ["serde", "v4"] }
-futures = { version = "0.1.28" }
+#futures = { version = "0.1.28" }
+futures-preview = { version = "=0.3.0-alpha.17", features = ["compat", "async-await", "nightly"] }
 tokio-core = { version = "0.1.17" }
 
 # https://www.rusoto.org/lambdas.html
