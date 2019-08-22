@@ -1,4 +1,4 @@
-use crate::aws::athena::query_athena;
+use crate::aws::athena::athena_query;
 
 // Query using advanced rust-htslib indexing
 #[allow(dead_code)]
@@ -8,7 +8,7 @@ fn query_storage() -> String {
 
 // Direct query from local client to Athena (assumes appropriate permissions)
 fn query_db(id: String) -> String {
-    return query_athena(id);
+    return athena_query(id);
 }
 
 // Database interface fronted by APIGW/REST endpoint
