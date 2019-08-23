@@ -1,15 +1,18 @@
-use std:ops:Range;
-use std::future::Future;
+use std::ops::Range;
+use futures::Future;
+use std::error::Error;
 
-// XXX: ReadsRef not cool, change
-##[derive(Debug)]
-struct ReadsRef {
+pub mod athena;
+
+// XXX: ReadsRef name not cool, change
+#[derive(Debug)]
+pub struct ReadsRef {
     url: String,
-    range: Range,
+    range: Range<usize>,
 }
 
-trait ReadsIndex {
-    fn find_by_id(id: String) -> Future<Output=Vec<ReadsRef>>;
+pub trait ReadsIndex {
+    fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Box<dyn Error>>;
 }
 
 // trait VariantsIndex {

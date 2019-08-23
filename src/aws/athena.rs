@@ -9,17 +9,12 @@
 // Samples: NA12878 or /data/platinum/NA12878
 // Runs: ERR148333 or /byRun/ERR148333
 
-
 use uuid::Uuid;
 
 // Rusoto
-use rusoto_athena::*;
-use rusoto_core::{Region};
-
 pub fn athena_query(query: String) -> String {
 // XXX: Region out of here
 // let client = AthenaClient::new(Default::default()); should honor default AuthProviderChain?
-    let client = AthenaClient::new(Region::ApSoutheast2);
     let request_token = Uuid::new_v4();
 
     let query_input = StartQueryExecutionInput {
@@ -47,6 +42,7 @@ pub fn athena_query(query: String) -> String {
         },
     }
 
+    // XXX
     return "Formatted SQL return".to_string();
 }
 

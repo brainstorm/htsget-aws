@@ -1,7 +1,13 @@
 #[macro_use]
 extern crate clap;
+#[macro_use]
+extern crate dotenv_codegen;
+
+mod data;
 
 use clap::{App, Arg, SubCommand, ArgMatches};
+
+use rusoto_core::Region;
 
 use crate::data::athena::AthenaStore;
 use crate::data::ReadsIndex;
@@ -11,14 +17,15 @@ fn htsget_index(location: String) {
     println!("Indexing file: {}", location)
 }
 
-fn htsget_search(reads_index: ReadsIndex, args: &ArgMatches) {
+fn htsget_search<I>(reads_index: I, args: &ArgMatches)
+  where I: ReadsIndex {
+
     let id = args.value_of("id").unwrap().to_string();
 
     println!("Let's search: {}", id);
 
     let reads_refs = reads_index
-        .find_by_id(id)
-        .unwrap();
+        .find_by_id(id);
     
     for reads_ref in reads_refs.into_iter() {
         println!("{:?}", reads_ref);
@@ -43,7 +50,12 @@ fn main() {
                                     .required(true)))
                         .get_matches();
 
-    let store = AthenaStore::new(/** aws details **/);
+    //let region = dotenv!("AWS_REGION").to_string();
+    let region = Region::default();
+    let database = dotenv!("AWS_ATHENA_DB").to_string();
+    let results_bucket = dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string();
+    // Connect to Athena on AWS
+    let store = AthenaStore::new(region, database, results_bucket);
 
     // ... and some argument action!
     match matches.subcommand() {
