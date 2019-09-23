@@ -1,5 +1,4 @@
 use std::ops::Range;
-use futures::Future;
 use std::error::Error;
 
 pub mod athena;
