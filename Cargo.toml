@@ -8,6 +8,9 @@ edition = "2018"
 # name = "hstget"
 # doc = false
 
+# [patch.crates-io]
+# rusoto_core = { git = 'https://github.com/hhatto/rusoto/', branch = 'improve-parse-error-message-on-other-service', default_features = false, features=["rustls"] }
+
 [dependencies]
 lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
@@ -16,7 +19,7 @@ env_logger = "0.6.2"
 clap = "2.33.0"
 dotenv_codegen = "0.14.1"
 uuid = { version = "0.7.4", features = ["serde", "v4"] }
-futures = { version = "0.1.28" }
+futures = { version = "0.1.29" }
 #futures-preview = { version = "=0.3.0-alpha.17", features = ["compat", "async-await", "nightly"] }
 # tokio-core = { version = "0.1.17" }
 tokio = "0.1.22"
@@ -27,5 +30,10 @@ tokio = "0.1.22"
 # file for both the rusoto_core crate and any Rusoto service 
 # crates used" "rustls" is required for all lambdas
 # """
-rusoto_athena = {version = "0.40.0", default_features = false, features=["rustls"]}
-rusoto_core = {version = "0.40.0", default_features = false, features=["rustls"]}
+#rusoto_athena = { version = "0.40.0", default_features = false, features=["rustls"] }
+#rusoto_core = { version = "0.40.0", default_features = false, features=["rustls"] }
+rusoto_athena = { path = 'vendor/rusoto/rusoto/services/athena' }
+rusoto_core = { path = 'vendor/rusoto/rusoto/core' }
+
+# [patch.crates-io]
+# rusoto_core = { path = '/Users/romanvg/dev/umccr/htsget-aws/vendor/rusoto' }

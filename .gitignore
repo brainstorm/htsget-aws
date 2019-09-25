@@ -5,3 +5,4 @@ rustfmt.toml
 .DS_Store
 .vscode
 .env
+vendor
