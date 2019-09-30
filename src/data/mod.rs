@@ -1,7 +1,9 @@
 use std::ops::Range;
-use std::error::Error;
 
 pub mod athena;
+pub mod errors;
+
+use crate::data::errors::{Error, Result};
 
 // XXX: ReadsRef name not cool, change
 #[derive(Debug)]
@@ -11,7 +13,7 @@ pub struct ReadsRef {
 }
 
 pub trait ReadsIndex {
-    fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Box<dyn Error>>;
+    fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Error>;
 }
 
 // trait VariantsIndex {
