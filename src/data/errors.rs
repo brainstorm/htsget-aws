@@ -13,6 +13,6 @@ pub enum Error {
     MalformedQuery,
     #[snafu(display("Rusoto StartQueryExecutionError"))]
     RusotoStartQueryExecError {
-        source: rusoto_core::error::RusotoError<rusoto_athena::generated::StartQueryExecutionError>
+        source: rusoto_core::RusotoError<rusoto_athena::StartQueryExecutionError>
     }
 }
