@@ -53,11 +53,12 @@ impl ReadsIndex for AthenaStore {
     };
 
     store.client.start_query_execution(query_input).sync()
-        .map_err(Error::RusotoStartQueryExecError)
+    //XXX: Figure out why source: is not an implicit snafu parameter
+        .map_err(|_| Error::NoResults )
         .and_then(|output| {
             output.query_execution_id
                 .map(|query_id| vec!(ReadsRef{ url: output.query_execution_id.unwrap().to_string(), range: 1..2 }))
-                .ok_or()
+                .ok_or(Error::NoResults)
         })
 
     // match store.client.start_query_execution(query_input).sync() {
