@@ -1,4 +1,3 @@
-//use std::error::Error;
 use uuid::Uuid;
 
 #[macro_use]
@@ -32,7 +31,6 @@ impl AthenaStore {
 }
 
 impl ReadsIndex for AthenaStore {
-  //fn find_by_id(&self, id: String) -> use Result<Vec<ReadsRef>, Box<dyn Error>> {
   fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Error> {
     let store = AthenaStore::new(Region::ApSoutheast2,
                                  dotenv_codegen::dotenv!("AWS_ATHENA_DB").to_string(), 
@@ -48,39 +46,19 @@ impl ReadsIndex for AthenaStore {
             output_location: Some(dotenv_codegen::dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string())
         }),
         work_group: Default::default(),
-        //query_string: id
+        //XXX: query_string: id
         query_string: "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string()
     };
 
-    store.client.start_query_execution(query_input).sync()
-    //XXX: Figure out why source: is not an implicit snafu parameter
-        .map_err(|_| Error::NoResults )
-        .and_then(|output| {
-            output.query_execution_id
-                .map(|query_id| vec!(ReadsRef{ url: output.query_execution_id.unwrap().to_string(), range: 1..2 }))
-                .ok_or(Error::NoResults)
-        })
+    let query_id = store.client.start_query_execution(query_input).sync()
+        //XXX: Figure out why source: is not an implicit snafu parameter
+            .map_err(|_| Error::NoResults )
+            .and_then(|output| {
+                output.query_execution_id
+                    .map(|query_id| vec!(ReadsRef{ url: query_id, range: 1..2 }))
+                    .ok_or(Error::NoResults)
+            });
 
-    // match store.client.start_query_execution(query_input).sync() {
-    //     Ok(output) => {
-    //         match output.query_execution_id {
-    //             Some(query_id) => Ok(vec!(ReadsRef{ url: output.query_execution_id.unwrap().to_string(), range: 1..2 }))
-    //             //None => ReadsRef{ url: "error".unwrap().to_string(), range: 0..1 } 
-    //         }
-    //     },
-    //     Err(error) => {
-    //         println!("Error: {:?}", error);
-    //         Err(Box::new(error))
-    //     },
-    // }
-    // XXX Remove
-    //let example_result = ReadsRef{ url: query_execution_id, range: 1..2 };
-
-    //Ok(vec!(vec!(ReadsRef{ url: output.query_execution_id.unwrap().to_string(), range: 1..2 })))
-    // Ok(vec!())
-    // }
-
-    // let query_output = ListQueryExecutionsOutput {
-
-    // }
+    return query_id;
+  }
 }

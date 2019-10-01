@@ -1,8 +1,9 @@
 use snafu::Snafu;
-use rusoto_core::error::RusotoError;
+use rusoto_core;
 use rusoto_athena;
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
+//pub type Result<T, E = Error> = Result<T, E>;
 
 #[derive(Snafu, Debug, PartialEq)]
 #[snafu(visibility = "pub")]
