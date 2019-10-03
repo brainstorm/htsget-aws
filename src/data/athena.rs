@@ -50,14 +50,20 @@ impl ReadsIndex for AthenaStore {
         query_string: "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string()
     };
 
+      // XXX: Shouldn't this just return a GetQueryResultsInput object to feed it into next operation?
     let query_id = store.client.start_query_execution(query_input).sync()
         //XXX: Figure out why source: is not an implicit snafu parameter
-            .map_err(|_| Error::NoResults )
+            .context(|_| Error::NoResults )
             .and_then(|output| {
                 output.query_execution_id
-                    .map(|query_id| vec!(ReadsRef{ url: query_id, range: 1..2 }))
+                    .map(|query_id| query_id)
                     .ok_or(Error::NoResults)
             });
+
+
+    let query_output = store.client.get_query_results(query_id).sync()
+        .map(|output| output.result_set )
+        .and_then(println!(output));
 
     return query_id;
   }
