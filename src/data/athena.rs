@@ -4,6 +4,7 @@ use uuid::Uuid;
 use dotenv_codegen;
 
 // Rusoto
+// XXX: More specific imports
 use rusoto_athena::*;
 use rusoto_core::Region;
 
@@ -26,7 +27,7 @@ impl AthenaStore {
               database,
               results_bucket,
               request_token
-          }
+    }
   }
 }
 
@@ -50,21 +51,25 @@ impl ReadsIndex for AthenaStore {
         query_string: "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string()
     };
 
-      // XXX: Shouldn't this just return a GetQueryResultsInput object to feed it into next operation?
-    let query_id = store.client.start_query_execution(query_input).sync()
-        //XXX: Figure out why source: is not an implicit snafu parameter
-            .context(|_| Error::NoResults )
-            .and_then(|output| {
-                output.query_execution_id
-                    .map(|query_id| query_id)
-                    .ok_or(Error::NoResults)
-            });
+    let query_token = store.client.start_query_execution(query_input).sync()
+        .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
+        .and_then(|output| {
+            output.query_execution_id
+                .ok_or(Error::ReadsQueryError { cause: "No reads found" })
+        })?;
 
-
-    let query_output = store.client.get_query_results(query_id).sync()
-        .map(|output| output.result_set )
-        .and_then(println!(output));
-
-    return query_id;
+    let refs = Vec::new();
+    let mut token: Option<String> = Some(query_token);
+    while token.is_some() {
+      let query_results_input = GetQueryResultsInput { query_execution_id: token.unwrap() };
+      let result = store.client.get_query_results(query_results_input).sync()
+          .map(|output| {
+            output.result_set
+            // TODO athena result -> Vec<ReadsRef>
+          })
+          .and_then(println!(output));
+      // TODO fill refs with result.result_set
+      token = result.next_token;
+    }
   }
 }
