@@ -31,10 +31,5 @@ snafu = "0.5.0"
 # file for both the rusoto_core crate and any Rusoto service 
 # crates used" "rustls" is required for all lambdas
 # """
-rusoto_athena = { default_features = false, features=["rustls"], branch = "master", git="https://github.com/rusoto/rusoto" }
-rusoto_core = { default_features = false, features=["rustls"], branch = "master", git="https://github.com/rusoto/rusoto"  }
-#rusoto_athena = { path = 'vendor/rusoto/rusoto/services/athena' }
-#rusoto_core = { path = 'vendor/rusoto/rusoto/core' }
-
-# [patch.crates-io]
-# rusoto_core = { path = '/Users/romanvg/dev/umccr/htsget-aws/vendor/rusoto' }
+rusoto_athena = { default_features = false, features=["rustls"], version = "0.41.0" }
+rusoto_core = { default_features = false, features=["rustls"], version = "0.41.0" }
