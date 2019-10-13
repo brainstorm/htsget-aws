@@ -11,6 +11,7 @@ use rusoto_core::Region;
 use crate::data::{ReadsRef, ReadsIndex};
 use crate::data::errors::{Error, Result};
 
+
 pub struct AthenaStore {
   client: AthenaClient,
   database: String,
@@ -55,21 +56,37 @@ impl ReadsIndex for AthenaStore {
         .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
         .and_then(|output| {
             output.query_execution_id
-                .ok_or(Error::ReadsQueryError { cause: "No reads found" })
+                .ok_or(Error::ReadsQueryError { cause: "No reads found 1".to_string() })
         })?;
 
-    let refs = Vec::new();
+    // XXX: Check AThena rusoto for wait-like methods
+    // XXX: Timeout
+    wait_query_execution(store.client, query_token)?;
+
+    let mut refs = Vec::new();
+    println!("{:?}", query_token.to_string());
     let mut token: Option<String> = Some(query_token);
     while token.is_some() {
-      let query_results_input = GetQueryResultsInput { query_execution_id: token.unwrap() };
-      let result = store.client.get_query_results(query_results_input).sync()
-          .map(|output| {
-            output.result_set
-            // TODO athena result -> Vec<ReadsRef>
-          })
-          .and_then(println!(output));
-      // TODO fill refs with result.result_set
-      token = result.next_token;
+      let next_token = token.unwrap();
+      let query_results_input = GetQueryResultsInput {
+        query_execution_id: next_token.clone(),
+        max_results: None,
+        next_token: Some(next_token),
+      };
+      
+      let query_results_x = store.client.get_query_results(query_results_input).sync()
+        .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) });
+
+      println!("{:?}", query_results_x);
+      let query_results = query_results_x?;
+      
+      println!("{:?}", query_results.result_set);
+      // TODO query_results.result_set -> Vec<ReadsRef>
+      let reads_batch = Vec::<ReadsRef>::new();
+      
+      refs.extend(reads_batch.into_iter());
+      token = query_results.next_token;
     }
+    Ok(refs)
   }
 }

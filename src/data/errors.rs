@@ -1,10 +1,9 @@
 use snafu::Snafu;
-use rusoto_core;
 
-#[derive(Snafu, Debug, PartialEq)]
+#[derive(Debug, Snafu)]
 #[snafu(visibility = "pub")]
 pub enum Error {
-    #[snafu(display("Error retrieving reads"))]
+    #[snafu(display("Error retrieving reads: {}", cause))]
     ReadsQueryError { cause: String }
 }
 
