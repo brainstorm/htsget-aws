@@ -33,26 +33,36 @@ impl AthenaStore {
   }
 }
 
-fn wait_for_results(client: AthenaClient, query: StartQueryExecutionInput, token: String){
-  let query_status = None;
-  let query_in = GetQueryExecutionInput {
-    query_execution_id: token
-  };
+fn wait_for_results(client: &AthenaClient, token: &String) -> Result <(), Error> {
+  let mut succeed = false;
+  let start_time = time::Instant::now();
 
-  while query_status.is_some() {
-    let query_status = client.get_query_execution(query_in).sync()
-      .map_err(|err| format!("Status not found: {:?}", err))
-      .and_then(|output| output.query_execution.status);
+  while !succeed && time::Instant::now().duration_since(start_time).as_secs() < 10 {
+    let query_in = GetQueryExecutionInput { query_execution_id: token.clone() };
+    let state = client.get_query_execution(query_in).sync()
+      .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
+      .map(|output| {
+        output.query_execution
+          .and_then(|query_exec| query_exec.status)
+          .and_then(|status| status.state)
+      })?;
 
+    succeed = state.map(|status| status == "SUCCEED").unwrap_or(false);
+      // XXX: If failure states do not wait
+    if !succeed {
       // Wish Rusoto's async was in better shape :_/
       let one_second = time::Duration::from_secs(1);
       thread::sleep(one_second);
+    }
+  }
 
-      println!("Current Athena query status is: {:?}", query_status.unwrap());
-
-      if query_status.unwrap() == "SUCCEEDED" { return };
-  };
-
+  if succeed {
+    Ok(())
+  }
+  else {
+    Err(Error::ReadsQueryError { cause: "Timeout waiting for the query result".to_string() })
+  }
+}
 
 impl ReadsIndex for AthenaStore {
   fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Error> {
@@ -83,7 +93,7 @@ impl ReadsIndex for AthenaStore {
         })?;
 
     // XXX: Handle timeouts better
-    wait_for_results(store.client, query_input, query_token);
+    wait_for_results(&store.client, &query_token);
 
     let mut refs = Vec::new();
     println!("{:?}", query_token.to_string());
