@@ -1,4 +1,5 @@
 use uuid::Uuid;
+use std::{thread, time};
 
 #[macro_use]
 use dotenv_codegen;
@@ -6,7 +7,7 @@ use dotenv_codegen;
 // Rusoto
 // XXX: More specific imports
 use rusoto_athena::*;
-use rusoto_core::Region;
+use rusoto_core::{Region};
 
 use crate::data::{ReadsRef, ReadsIndex};
 use crate::data::errors::{Error, Result};
@@ -32,6 +33,27 @@ impl AthenaStore {
   }
 }
 
+fn wait_for_results(client: AthenaClient, query: StartQueryExecutionInput, token: String){
+  let query_status = None;
+  let query_in = GetQueryExecutionInput {
+    query_execution_id: token
+  };
+
+  while query_status.is_some() {
+    let query_status = client.get_query_execution(query_in).sync()
+      .map_err(|err| format!("Status not found: {:?}", err))
+      .and_then(|output| output.query_execution.status);
+
+      // Wish Rusoto's async was in better shape :_/
+      let one_second = time::Duration::from_secs(1);
+      thread::sleep(one_second);
+
+      println!("Current Athena query status is: {:?}", query_status.unwrap());
+
+      if query_status.unwrap() == "SUCCEEDED" { return };
+  };
+
+
 impl ReadsIndex for AthenaStore {
   fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Error> {
     let store = AthenaStore::new(Region::ApSoutheast2,
@@ -52,16 +74,16 @@ impl ReadsIndex for AthenaStore {
         query_string: "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string()
     };
 
-    let query_token = store.client.start_query_execution(query_input).sync()
+    let query = store.client.start_query_execution(query_input); 
+    let query_token = query.sync()
         .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
         .and_then(|output| {
             output.query_execution_id
                 .ok_or(Error::ReadsQueryError { cause: "No reads found 1".to_string() })
         })?;
 
-    // XXX: Check AThena rusoto for wait-like methods
-    // XXX: Timeout
-    wait_query_execution(store.client, query_token)?;
+    // XXX: Handle timeouts better
+    wait_for_results(store.client, query_input, query_token);
 
     let mut refs = Vec::new();
     println!("{:?}", query_token.to_string());
