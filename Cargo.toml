@@ -16,7 +16,6 @@ lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
 serde_json = "1.0.40"
 env_logger = "0.6.2"
-clap = "2.33.0"
 dotenv_codegen = "0.14.1"
 uuid = { version = "0.7.4", features = ["serde", "v4"] }
 futures = { version = "0.1.29" }
@@ -24,6 +23,9 @@ futures = { version = "0.1.29" }
 # tokio-core = { version = "0.1.17" }
 tokio = "0.1.22"
 snafu = "0.5.0"
+
+# Just barebones clap, no coloring, etc...
+clap = { default-features = false, version = "2.33.0"}
 
 # https://www.rusoto.org/lambdas.html
 # """
