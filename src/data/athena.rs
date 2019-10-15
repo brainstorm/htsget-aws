@@ -85,7 +85,7 @@ impl ReadsIndex for AthenaStore {
     };
 
     let query = store.client.start_query_execution(query_input); 
-    let query_token = query.sync()
+    let query_exec_id = query.sync()
         .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
         .and_then(|output| {
             output.query_execution_id
@@ -93,17 +93,18 @@ impl ReadsIndex for AthenaStore {
         })?;
 
     // XXX: Handle timeouts better
-    wait_for_results(&store.client, &query_token);
+    wait_for_results(&store.client, &query_exec_id);
 
     let mut refs = Vec::new();
-    println!("{:?}", query_token.to_string());
-    let mut token: Option<String> = Some(query_token);
-    while token.is_some() {
-      let next_token = token.unwrap();
+    // println!("{:?}", query_exec_id.to_string());
+    // let mut token: Option<String> = Some(query_exec_id);
+    // while token.is_some() {
+    //   let next_token = token.unwrap();
       let query_results_input = GetQueryResultsInput {
-        query_execution_id: next_token.clone(),
+        query_execution_id: query_exec_id,
         max_results: None,
-        next_token: Some(next_token),
+        next_token: Default::default()
+//        next_token: Some(next_token),
       };
       
       let query_results_x = store.client.get_query_results(query_results_input).sync()
@@ -113,12 +114,14 @@ impl ReadsIndex for AthenaStore {
       let query_results = query_results_x?;
       
       println!("{:?}", query_results.result_set);
-      // TODO query_results.result_set -> Vec<ReadsRef>
-      let reads_batch = Vec::<ReadsRef>::new();
       
-      refs.extend(reads_batch.into_iter());
-      token = query_results.next_token;
-    }
-    Ok(refs)
+      // TODO query_results.result_set -> Vec<ReadsRef>
+      // let reads_batch = Vec::<ReadsRef>::new();
+      
+      // refs.extend(reads_batch.into_iter());
+      // token = query_results.next_token;
+    // }
+    //Ok(refs)
+    Ok((refs))
   }
 }
