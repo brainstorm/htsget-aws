@@ -80,8 +80,9 @@ impl ReadsIndex for AthenaStore {
             output_location: Some(dotenv_codegen::dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string())
         }),
         work_group: Default::default(),
-        //XXX: query_string: id
-        query_string: "SELECT referencename FROM htsget.adam WHERE referencename LIKE 'chr1';".to_string()
+        // XXX: query_string: id
+        // XXX: see how igv.js implements htsget
+        query_string: "SELECT referencename, cigar FROM htsget.adam WHERE referencename = 'chr1';".to_string()
     };
 
     let query = store.client.start_query_execution(query_input); 
@@ -95,33 +96,31 @@ impl ReadsIndex for AthenaStore {
     // XXX: Handle timeouts better
     wait_for_results(&store.client, &query_exec_id);
 
-    let mut refs = Vec::new();
-    // println!("{:?}", query_exec_id.to_string());
-    // let mut token: Option<String> = Some(query_exec_id);
-    // while token.is_some() {
-    //   let next_token = token.unwrap();
-      let query_results_input = GetQueryResultsInput {
-        query_execution_id: query_exec_id,
-        max_results: None,
-        next_token: Default::default()
-//        next_token: Some(next_token),
-      };
-      
-      let query_results_x = store.client.get_query_results(query_results_input).sync()
-        .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) });
-
-      println!("{:?}", query_results_x);
-      let query_results = query_results_x?;
-      
-      println!("{:?}", query_results.result_set);
-      
-      // TODO query_results.result_set -> Vec<ReadsRef>
-      // let reads_batch = Vec::<ReadsRef>::new();
-      
-      // refs.extend(reads_batch.into_iter());
-      // token = query_results.next_token;
+    let refs = Vec::new();
+    let query_results_input = GetQueryResultsInput {
+      query_execution_id: query_exec_id,
+      max_results: None,
+      next_token: Default::default()
+    };
+    
+    let query_results = store.client.get_query_results(query_results_input).sync()
+      .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) })?;
+    
+    let meta = query_results.result_set.map(|res| { 
+      res.result_set_metadata
+        .map(|col_info| col_info.column_info)
+        //.map(|col| col.name)
+        .ok_or(Error::ReadsQueryError { cause: "No metadata found".to_string() })
+    });
+    
+    dbg!(meta);
+    //println!("{:#?}", rows);
+    // TODO query_results.result_set -> Vec<ReadsRef>
+    // let reads_batch = Vec::<ReadsRef>::new();
+    
+    // refs.extend(reads_batch.into_iter());
+    // token = query_results.next_token;
     // }
-    //Ok(refs)
-    Ok((refs))
+    Ok(refs)
   }
 }
