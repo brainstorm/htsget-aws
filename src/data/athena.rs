@@ -82,7 +82,7 @@ impl ReadsIndex for AthenaStore {
         work_group: Default::default(),
         // XXX: query_string: id
         // XXX: see how igv.js implements htsget
-        query_string: "SELECT referencename, cigar FROM htsget.adam WHERE referencename = 'chr1';".to_string()
+        query_string: "SELECT referencename, cigar FROM htsget.umccr_htsget_dev WHERE referencename = 'chr1';".to_string()
     };
 
     let query = store.client.start_query_execution(query_input); 
@@ -94,7 +94,7 @@ impl ReadsIndex for AthenaStore {
         })?;
 
     // XXX: Handle timeouts better
-    wait_for_results(&store.client, &query_exec_id);
+    wait_for_results(&store.client, &query_exec_id)?;
 
     let refs = Vec::new();
     let query_results_input = GetQueryResultsInput {
@@ -104,16 +104,20 @@ impl ReadsIndex for AthenaStore {
     };
     
     let query_results = store.client.get_query_results(query_results_input).sync()
-      .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) })?;
+      .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) });
     
-    let meta = query_results.result_set.map(|res| { 
-      res.result_set_metadata
-        .map(|col_info| col_info.column_info)
-        //.map(|col| col.name)
+    let meta = query_results.map(|res| { 
+      res.result_set
+        //.and_then(|col_info| col_info.column_info)
+        .and_then(|col| col.result_set_metadata )
+        .and_then(|col| col.column_info )
         .ok_or(Error::ReadsQueryError { cause: "No metadata found".to_string() })
-    });
+    })?;
     
-    dbg!(meta);
+    //let res = meta.unwrap();
+    dbg!(meta)?;
+
+    //dbg!(meta);
     //println!("{:#?}", rows);
     // TODO query_results.result_set -> Vec<ReadsRef>
     // let reads_batch = Vec::<ReadsRef>::new();
