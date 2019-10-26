@@ -12,6 +12,15 @@ pub struct ReadsRef {
     range: Range<usize>,
 }
 
+impl ReadsRef {
+    fn new(url: String, range: Range<usize>) -> ReadsRef {
+        ReadsRef {
+            url,
+            range
+        }
+    }
+}
+
 //XXX: Change name
 pub trait ReadsIndex {
     fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Error>;

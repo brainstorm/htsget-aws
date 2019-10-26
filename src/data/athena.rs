@@ -64,6 +64,33 @@ fn wait_for_results(client: &AthenaClient, token: &String) -> Result <(), Error>
   }
 }
 
+fn extract_reads(result_set: &ResultSet) -> Option<Vec<ReadsRef>> {
+  let read_refs: Vec<ReadsRef> = result_set.rows.iter()
+      .flat_map(|rows| rows.into_iter())
+      .flat_map(|row| extract_row(row).into_iter())
+      .collect();
+  
+  Some(read_refs)
+}
+
+//XXX: baseurl parameter
+fn extract_row(row: &Row) -> Option<ReadsRef> {
+  row.data.iter()
+    .flat_map(|cols| {
+      cols[0].var_char_value.as_ref()
+        .and_then(|ref_name| {
+          cols[1].var_char_value.as_ref()
+            .map(|cigar| (ref_name, cigar))
+        }).into_iter()
+    })
+    .map(|(ref_name, cigar)| {
+      let url = "XXX".to_string();
+      let range = 1..2; // XXX: range of bytes   
+      ReadsRef::new(url, range) 
+    })
+    .next()
+}
+
 impl ReadsIndex for AthenaStore {
   fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Error> {
     let store = AthenaStore::new(Region::ApSoutheast2,
@@ -94,7 +121,7 @@ impl ReadsIndex for AthenaStore {
         })?;
 
     // XXX: Handle timeouts better
-    wait_for_results(&store.client, &query_exec_id)?;
+    wait_for_results(&store.client, &query_exec_id);
 
     let refs = Vec::new();
     let query_results_input = GetQueryResultsInput {
@@ -111,11 +138,13 @@ impl ReadsIndex for AthenaStore {
         //.and_then(|col_info| col_info.column_info)
         .and_then(|col| col.result_set_metadata )
         .and_then(|col| col.column_info )
+        .and_then(|cols| { cols.first().map(|col| col.name.clone()) } ) // XXX: Function that parses
+                                                                        // 
         .ok_or(Error::ReadsQueryError { cause: "No metadata found".to_string() })
-    })?;
+    });
     
     //let res = meta.unwrap();
-    dbg!(meta)?;
+    dbg!(meta);
 
     //dbg!(meta);
     //println!("{:#?}", rows);
