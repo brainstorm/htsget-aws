@@ -75,20 +75,19 @@ fn extract_reads(result_set: &ResultSet) -> Option<Vec<ReadsRef>> {
 
 //XXX: baseurl parameter
 fn extract_row(row: &Row) -> Option<ReadsRef> {
-  row.data.iter()
-    .flat_map(|cols| {
+  row.data.as_ref()
+    .and_then(|cols| {
       cols[0].var_char_value.as_ref()
         .and_then(|ref_name| {
           cols[1].var_char_value.as_ref()
             .map(|cigar| (ref_name, cigar))
-        }).into_iter()
+        })
     })
     .map(|(ref_name, cigar)| {
       let url = "XXX".to_string();
       let range = 1..2; // XXX: range of bytes   
       ReadsRef::new(url, range) 
     })
-    .next()
 }
 
 impl ReadsIndex for AthenaStore {
@@ -134,12 +133,9 @@ impl ReadsIndex for AthenaStore {
       .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) });
     
     let meta = query_results.map(|res| { 
-      res.result_set
-        //.and_then(|col_info| col_info.column_info)
-        .and_then(|col| col.result_set_metadata )
-        .and_then(|col| col.column_info )
-        .and_then(|cols| { cols.first().map(|col| col.name.clone()) } ) // XXX: Function that parses
-                                                                        // 
+      //extract_reads(&res.result_set)
+      res.result_set.as_ref()
+        .and_then(extract_reads)                                                                        // 
         .ok_or(Error::ReadsQueryError { cause: "No metadata found".to_string() })
     });
     
