@@ -5,18 +5,46 @@ pub mod errors;
 
 use crate::data::errors::{Error, Result};
 
-// XXX: ReadsRef name not cool, change
+// htsget response as described in: https://samtools.github.io/hts-specs/htsget.html
+
+struct HtsGetResponse {
+    Format: Format,
+    Urls: ReadsRef
+}
+
+#[derive(Debug)]
+enum Format {
+    BAM,
+    CRAM,
+    VCF
+}
+
+// XXX
+#[derive(Debug)]
+enum Class {
+    Body,
+    Header
+}
+
 #[derive(Debug)]
 pub struct ReadsRef {
     url: String,
-    range: Range<usize>,
+    class: String,
+    headers: ReadsRefHeaders,
+}
+
+#[derive(Debug)]
+struct ReadsRefHeaders {
+    authorization: String,
+    bytes: Range<usize>,
 }
 
 impl ReadsRef {
-    fn new(url: String, range: Range<usize>) -> ReadsRef {
+    fn new(url: String, class: String, headers: ReadsRefHeaders) -> ReadsRef {
         ReadsRef {
             url,
-            range
+            class,
+            headers
         }
     }
 }

@@ -5,11 +5,10 @@ use std::{thread, time};
 use dotenv_codegen;
 
 // Rusoto
-// XXX: More specific imports
 use rusoto_athena::*;
 use rusoto_core::{Region};
 
-use crate::data::{ReadsRef, ReadsIndex};
+use crate::data::{ReadsRef, ReadsRefHeaders, Class, ReadsIndex};
 use crate::data::errors::{Error, Result};
 
 
@@ -85,8 +84,12 @@ fn extract_row(row: &Row) -> Option<ReadsRef> {
     })
     .map(|(ref_name, cigar)| {
       let url = "XXX".to_string();
-      let range = 1..2; // XXX: range of bytes   
-      ReadsRef::new(url, range) 
+      let headers = ReadsRefHeaders {
+        authorization: "all_good".to_string(),
+        bytes: 0..1000,
+      };
+
+      ReadsRef::new(url, "body".to_string(), headers)
     })
 }
 
@@ -133,23 +136,12 @@ impl ReadsIndex for AthenaStore {
       .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) });
     
     let meta = query_results.map(|res| { 
-      //extract_reads(&res.result_set)
       res.result_set.as_ref()
-        .and_then(extract_reads)                                                                        // 
+        .and_then(extract_reads)
         .ok_or(Error::ReadsQueryError { cause: "No metadata found".to_string() })
     });
     
-    //let res = meta.unwrap();
     dbg!(meta);
-
-    //dbg!(meta);
-    //println!("{:#?}", rows);
-    // TODO query_results.result_set -> Vec<ReadsRef>
-    // let reads_batch = Vec::<ReadsRef>::new();
-    
-    // refs.extend(reads_batch.into_iter());
-    // token = query_results.next_token;
-    // }
     Ok(refs)
   }
 }
