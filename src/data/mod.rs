@@ -1,17 +1,30 @@
-use std::ops::Range;
+//use std::ops::Range;
 
 pub mod athena;
 pub mod errors;
 
 use crate::data::errors::{Error, Result};
 
-// htsget response as described in: https://samtools.github.io/hts-specs/htsget.html
 
-struct HtsGetResponse {
-    Format: Format,
-    Urls: ReadsRef
+// XXX: Move to client module/class
+// Minimum required parameters as seen on igv.js testsuite:
+// https://github.com/igvteam/igv.js/blob/0c8f6982bc4cc8756bfa5cf3c962ff81faf08284/test/testHtsgetReader.js#L43
+#[derive(Debug)]
+pub struct IgvParametersRequest {
+    pub url: String,
+    pub id: String,
+    pub chromosome: String,
+    pub start: usize,
+    pub end: usize
 }
 
+// htsget response as described in: https://samtools.github.io/hts-specs/htsget.html
+struct HtsGetResponse {
+    format: Format,
+    urls: ReadsRef
+}
+
+#[allow(dead_code)]
 #[derive(Debug)]
 enum Format {
     BAM,
@@ -19,7 +32,8 @@ enum Format {
     VCF
 }
 
-// XXX
+// XXX: Make better use of this enum
+#[allow(dead_code)]
 #[derive(Debug)]
 enum Class {
     Body,
@@ -35,8 +49,8 @@ pub struct ReadsRef {
 
 #[derive(Debug)]
 struct ReadsRefHeaders {
-    authorization: String,
-    bytes: Range<usize>,
+    Authorization: String,
+    Range: String,
 }
 
 impl ReadsRef {
@@ -51,7 +65,7 @@ impl ReadsRef {
 
 //XXX: Change name
 pub trait ReadsIndex {
-    fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Error>;
+    fn find_by_id(&self, id: IgvParametersRequest) -> Result<Vec<ReadsRef>, Error>;
 }
 
 // trait VariantsIndex {

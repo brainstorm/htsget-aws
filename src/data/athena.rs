@@ -1,15 +1,16 @@
 use uuid::Uuid;
 use std::{thread, time};
 
-#[macro_use]
+//#[macro_use]
 use dotenv_codegen;
 
 // Rusoto
 use rusoto_athena::*;
 use rusoto_core::{Region};
 
-use crate::data::{ReadsRef, ReadsRefHeaders, Class, ReadsIndex};
+use crate::data::{ReadsRef, ReadsRefHeaders, ReadsIndex};
 use crate::data::errors::{Error, Result};
+use crate::data::IgvParametersRequest;
 
 
 pub struct AthenaStore {
@@ -82,19 +83,30 @@ fn extract_row(row: &Row) -> Option<ReadsRef> {
             .map(|cigar| (ref_name, cigar))
         })
     })
-    .map(|(ref_name, cigar)| {
+    .map(|(_ref_name, _cigar)| {
       let url = "XXX".to_string();
       let headers = ReadsRefHeaders {
-        authorization: "all_good".to_string(),
-        bytes: 0..1000,
+        Authorization: "Bearer all_good_for_now".to_string(),
+        Range: "bytes=XXX".to_string() //XXX: translation between input coords and bytes
       };
 
       ReadsRef::new(url, "body".to_string(), headers)
     })
 }
 
+fn igv_to_sql(query_json: IgvParametersRequest) -> String {
+    let start = query_json.start;
+    let end = query_json.end;
+    let chromosome = query_json.chromosome;
+
+    return format!("SELECT referencename, start, \"end\" \
+                    FROM htsget.umccr_htsget_dev \
+                    WHERE start >= {} AND \"end\" <= {} AND referencename = '{}' LIMIT 10;"
+                    , start, end, chromosome);
+}
+
 impl ReadsIndex for AthenaStore {
-  fn find_by_id(&self, id: String) -> Result<Vec<ReadsRef>, Error> {
+  fn find_by_id(&self, id: IgvParametersRequest) -> Result<Vec<ReadsRef>, Error> {
     let store = AthenaStore::new(Region::ApSoutheast2,
                                  dotenv_codegen::dotenv!("AWS_ATHENA_DB").to_string(), 
                                  dotenv_codegen::dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string());
@@ -105,13 +117,11 @@ impl ReadsIndex for AthenaStore {
             database: Some(dotenv_codegen::dotenv!("AWS_ATHENA_DB").to_string())
         }),
         result_configuration: Some(ResultConfiguration {
-            encryption_configuration: None,
+            encryption_configuration: Default::default(),
             output_location: Some(dotenv_codegen::dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string())
         }),
         work_group: Default::default(),
-        // XXX: query_string: id
-        // XXX: see how igv.js implements htsget
-        query_string: "SELECT referencename, cigar FROM htsget.umccr_htsget_dev WHERE referencename = 'chr1';".to_string()
+        query_string: igv_to_sql(id),
     };
 
     let query = store.client.start_query_execution(query_input); 
@@ -128,20 +138,20 @@ impl ReadsIndex for AthenaStore {
     let refs = Vec::new();
     let query_results_input = GetQueryResultsInput {
       query_execution_id: query_exec_id,
-      max_results: None,
+      max_results: Default::default(),
       next_token: Default::default()
     };
     
     let query_results = store.client.get_query_results(query_results_input).sync()
       .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) });
     
-    let meta = query_results.map(|res| { 
+    let reads = query_results.map(|res| {
       res.result_set.as_ref()
         .and_then(extract_reads)
         .ok_or(Error::ReadsQueryError { cause: "No metadata found".to_string() })
     });
-    
-    dbg!(meta);
+
+    dbg!(reads);
     Ok(refs)
   }
 }

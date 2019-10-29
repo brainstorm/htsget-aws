@@ -11,6 +11,7 @@ use rusoto_core::Region;
 
 use crate::data::athena::AthenaStore;
 use crate::data::ReadsIndex;
+use crate::data::IgvParametersRequest;
 
 
 fn htsget_index(location: String) {
@@ -22,10 +23,28 @@ fn htsget_search<I>(reads_index: I, args: &ArgMatches)
 
     let id = args.value_of("id").unwrap().to_string();
 
-    println!("Let's search: {}", id);
+//    let igvjs_htsget_example = igvParametersRequest {
+//        url: "http://htsnexus.rnd.dnanex.us/v1",
+//        id: "BroadHiSeqX_b37/NA12878",
+//        chromosome: "chr1",
+//        start: 10000,
+//        end: 10100
+//    };
+
+    let igvjs_htsget_example = IgvParametersRequest {
+        url: "http://htsget.umccr.org/v1".to_string(),
+        id: "BroadHiSeqX_b37/NA12878".to_string(),
+        chromosome: "chr1".to_string(),
+        start: 10000,
+        end: 10100
+    };
+
+
+    //dbg!(igvjs_htsget_example)
+    println!("Searching {:#?}: ", igvjs_htsget_example);
 
     let reads_refs = reads_index
-        .find_by_id(id);
+        .find_by_id(igvjs_htsget_example);
     
     for reads_ref in reads_refs.into_iter() {
         println!("{:?}", reads_ref);
