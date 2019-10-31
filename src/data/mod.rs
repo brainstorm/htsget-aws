@@ -49,8 +49,8 @@ pub struct ReadsRef {
 
 #[derive(Debug)]
 struct ReadsRefHeaders {
-    Authorization: String,
-    Range: String,
+    authorization: String,
+    range: String,
 }
 
 impl ReadsRef {
