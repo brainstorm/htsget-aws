@@ -14,7 +14,7 @@ pub fn seek_voffset() {
     let mut voffset = Voffsets{ coffset: 0, uoffset: 0 };
     let mut pos_voffset = HashMap::new();
 
-    let mut offset;
+    let mut offset = bam.tell();
 
     let mut rec = Record::new();
     loop {
@@ -23,16 +23,17 @@ pub fn seek_voffset() {
         // Retrieve virtual offset
         offset = bam.tell();
         // Get compressed and uncompressed indexes from virtual offset
-        let mut coffset = offset.checked_shr(16);
-        let mut uoffset = (offset ^ coffset.checked_shl(16)) as i32;
+        let mut coffset = (offset >> 16) as i32;
+        let mut uoffset = (offset & 0xffff ) as i32;
         voffset = Voffsets { coffset, uoffset };
 
-        pos_voffset.insert(rec.pos(), &voffset);
+        pos_voffset.insert(rec.pos(), voffset);
     }
 
     for (pos, voffsets) in pos_voffset {
         bam.seek(offset).unwrap();
         bam.read(&mut rec).unwrap();
+        println!("{0: <10} {1: <10} {2: <10}", pos, voffsets.uoffset, voffsets.coffset)
     }
 }
 
