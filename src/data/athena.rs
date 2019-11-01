@@ -86,8 +86,8 @@ fn extract_row(row: &Row) -> Option<ReadsRef> {
     .map(|(_ref_name, _cigar)| {
       let url = "XXX".to_string();
       let headers = ReadsRefHeaders {
-        Authorization: "Bearer all_good_for_now".to_string(),
-        Range: "bytes=XXX".to_string() //XXX: translation between input coords and bytes
+        authorization: "Bearer all_good_for_now".to_string(),
+        range: "bytes=XXX".to_string() //XXX: translation between input coords and bytes
       };
 
       ReadsRef::new(url, "body".to_string(), headers)

@@ -2,6 +2,7 @@
 
 pub mod athena;
 pub mod errors;
+pub mod htslib;
 
 use crate::data::errors::{Error, Result};
 

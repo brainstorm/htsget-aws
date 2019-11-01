@@ -11,6 +11,7 @@ use rusoto_core::Region;
 
 use crate::data::athena::AthenaStore;
 use crate::data::ReadsIndex;
+use crate::data::htslib::seek_voffset;
 use crate::data::IgvParametersRequest;
 
 
@@ -57,6 +58,8 @@ fn main() {
                         .version(crate_version!())
                         .author(crate_authors!())
                         .about("Retrieve bioinformatics data using REST")
+                        .subcommand(SubCommand::with_name("voffset")
+                                    .about("Voffset rust-hstlib support test"))
                         .subcommand(SubCommand::with_name("index")
                                     .about("Indexes an object sitting on object storage location")
                                     .arg(Arg::with_name("location")
@@ -82,6 +85,7 @@ fn main() {
             htsget_index(index_matches.value_of("location").unwrap().to_string());
         },
         ("search", Some(args)) => htsget_search(store, args),
+        ("voffset", Some(args)) => seek_voffset(),
         ("", None)   => println!("{}", matches.usage()),
         _            => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
     }
