@@ -11,7 +11,6 @@ use rusoto_core::Region;
 
 use crate::data::athena::AthenaStore;
 use crate::data::ReadsIndex;
-use crate::data::htslib::seek_voffset;
 use crate::data::IgvParametersRequest;
 
 
@@ -85,7 +84,6 @@ fn main() {
             htsget_index(index_matches.value_of("location").unwrap().to_string());
         },
         ("search", Some(args)) => htsget_search(store, args),
-        ("voffset", Some(args)) => seek_voffset(),
         ("", None)   => println!("{}", matches.usage()),
         _            => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
     }
