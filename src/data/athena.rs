@@ -12,6 +12,29 @@ use crate::data::{ReadsRef, ReadsRefHeaders, ReadsIndex};
 use crate::data::errors::{Error, Result};
 use crate::data::IgvParametersRequest;
 
+const TIMEOUT:u64 = 10;
+
+enum QueryState {
+    Queued,
+    Running,
+    Succeeded,
+    Failed,
+    Cancelled,
+    Unknown,
+}
+
+impl QueryState {
+    pub fn from_string(name: String) -> Self {
+        match name.as_str() {
+            "QUEUED" => QueryState::Queued,
+            "RUNNING" => QueryState::Running,
+            "SUCCEEDED" => QueryState::Succeeded,
+            "FAILED" => QueryState::Failed,
+            "CANCELLED" => QueryState::Cancelled,
+            _ => QueryState::Unknown,
+        }
+    }
+}
 
 pub struct AthenaStore {
   client: AthenaClient,
@@ -33,33 +56,40 @@ impl AthenaStore {
   }
 }
 
+fn query_done(maybe_state: Option<QueryState>, start_time: time::Instant) -> bool {
+    let one_second = time::Duration::from_secs(1);
+
+    if time::Instant::now().duration_since(start_time).as_secs() < TIMEOUT {
+        true
+    } else {
+        maybe_state.map(|state| match state {
+            QueryState::Succeeded => false,
+            QueryState::Cancelled | QueryState::Failed | QueryState::Unknown => true,
+            QueryState::Queued    | QueryState::Running => { thread::sleep(one_second); true },
+        }).unwrap_or(false)
+    }
+}
+
 fn wait_for_results(client: &AthenaClient, token: &String) -> Result <(), Error> {
-  let mut succeed = false;
+  let success = false;
   let start_time = time::Instant::now();
 
-  while !succeed && time::Instant::now().duration_since(start_time).as_secs() < 10 {
+  let mut maybe_state = None;
+
+  while !query_done(maybe_state, start_time) {
     let query_in = GetQueryExecutionInput { query_execution_id: token.clone() };
-    let state = client.get_query_execution(query_in).sync()
+    maybe_state = client.get_query_execution(query_in).sync()
       .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
       .map(|output| {
         output.query_execution
           .and_then(|query_exec| query_exec.status)
-          .and_then(|status| status.state)
+          .and_then(|status| status.state.map(QueryState::from_string))
       })?;
-
-    succeed = state.map(|status| status == "SUCCEED").unwrap_or(false);
-      // XXX: If failure states do not wait
-    if !succeed {
-      // Wish Rusoto's async was in better shape :_/
-      let one_second = time::Duration::from_secs(1);
-      thread::sleep(one_second);
-    }
   }
 
-  if succeed {
+  if success {
     Ok(())
-  }
-  else {
+  } else {
     Err(Error::ReadsQueryError { cause: "Timeout waiting for the query result".to_string() })
   }
 }
