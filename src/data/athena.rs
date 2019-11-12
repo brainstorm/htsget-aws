@@ -60,13 +60,13 @@ fn query_done(maybe_state: Option<QueryState>, start_time: time::Instant) -> boo
     let one_second = time::Duration::from_secs(1);
 
     if time::Instant::now().duration_since(start_time).as_secs() < TIMEOUT {
-        true
+        false
     } else {
         maybe_state.map(|state| match state {
-            QueryState::Succeeded => false,
-            QueryState::Cancelled | QueryState::Failed | QueryState::Unknown => true,
-            QueryState::Queued    | QueryState::Running => { thread::sleep(one_second); true },
-        }).unwrap_or(false)
+            QueryState::Succeeded => true,
+            QueryState::Cancelled | QueryState::Failed | QueryState::Unknown => false,
+            QueryState::Queued    | QueryState::Running => { thread::sleep(one_second); false },
+        }).unwrap_or(true)
     }
 }
 
