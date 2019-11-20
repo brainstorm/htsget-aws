@@ -51,19 +51,31 @@ fn htsget_search<I>(reads_index: I, args: &ArgMatches)
     }
 }
 
+fn init_athena_store() -> AthenaStore {
+    //let region = dotenv!("AWS_REGION").to_string();
+    let region = Region::default();
+    let database = dotenv!("AWS_ATHENA_DB").to_string();
+    let results_bucket = dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string();
+
+    return AthenaStore::new(region, database, results_bucket)
+}
+
+fn init_local_store(location: String) -> LocalStore {
+    location.split
+    return LocalStore::new(path, object)
+}
+
 fn main() {
     // CLI definition...
     let matches = App::new(crate_name!())
                         .version(crate_version!())
                         .author(crate_authors!())
                         .about("Retrieve bioinformatics data using REST")
-                        .subcommand(SubCommand::with_name("voffset")
-                                    .about("Voffset rust-hstlib support test"))
                         .subcommand(SubCommand::with_name("index")
                                     .about("Indexes an object sitting on object storage location")
                                     .arg(Arg::with_name("location")
                                     .help("Store object location, i.e: s3://bucket/key.bam")
-                                    .required(true)))
+                                    .required(false)))
                         .subcommand(SubCommand::with_name("search")
                                     .about("Searches the specified id")
                                     .arg(Arg::with_name("id")
@@ -71,17 +83,13 @@ fn main() {
                                     .required(true)))
                         .get_matches();
 
-    //let region = dotenv!("AWS_REGION").to_string();
-    let region = Region::default();
-    let database = dotenv!("AWS_ATHENA_DB").to_string();
-    let results_bucket = dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string();
-    // Connect to Athena on AWS
-    let store = AthenaStore::new(region, database, results_bucket);
+    store = init_local_store(dotenv!("LOCAL_STORE"));
 
     // ... and some argument action!
     match matches.subcommand() {
-        ("index", Some(index_matches)) => {
-            htsget_index(index_matches.value_of("location").unwrap().to_string());
+        ("index", Some(index)) => {
+            store = init_local_store(location);
+            htsget_index(index.value_of("location").unwrap().to_string());
         },
         ("search", Some(args)) => htsget_search(store, args),
         ("", None)   => println!("{}", matches.usage()),
