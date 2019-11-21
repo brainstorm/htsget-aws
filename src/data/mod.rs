@@ -1,5 +1,6 @@
 //use std::ops::Range;
 
+pub mod local;
 pub mod athena;
 pub mod errors;
 

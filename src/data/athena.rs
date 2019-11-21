@@ -162,7 +162,6 @@ impl ReadsIndex for AthenaStore {
                 .ok_or(Error::ReadsQueryError { cause: "No reads found 1".to_string() })
         })?;
 
-    // XXX: Handle timeouts better
     wait_for_results(&store.client, &query_exec_id);
 
     let refs = Vec::new();

@@ -14,22 +14,14 @@ use crate::data::ReadsIndex;
 use crate::data::IgvParametersRequest;
 
 
-fn htsget_index(location: String) {
-    println!("Indexing file: {}", location)
+fn htsget_index(location: &str, _store: &str) {
+    println!("Locally indexing file: {}", location)
 }
 
 fn htsget_search<I>(reads_index: I, args: &ArgMatches)
   where I: ReadsIndex {
 
     let id = args.value_of("id").unwrap().to_string();
-
-//    let igvjs_htsget_example = igvParametersRequest {
-//        url: "http://htsnexus.rnd.dnanex.us/v1",
-//        id: "BroadHiSeqX_b37/NA12878",
-//        chromosome: "chr1",
-//        start: 10000,
-//        end: 10100
-//    };
 
     let igvjs_htsget_example = IgvParametersRequest {
         url: "http://htsget.umccr.org/v1".to_string(),
@@ -39,8 +31,6 @@ fn htsget_search<I>(reads_index: I, args: &ArgMatches)
         end: 10100
     };
 
-
-    //dbg!(igvjs_htsget_example)
     println!("Searching {:#?}: ", igvjs_htsget_example);
 
     let reads_refs = reads_index
@@ -60,10 +50,14 @@ fn init_athena_store() -> AthenaStore {
     return AthenaStore::new(region, database, results_bucket)
 }
 
-fn init_local_store(location: String) -> LocalStore {
-    location.split
-    return LocalStore::new(path, object)
-}
+//fn init_local_store(location: String) -> LocalStore {
+//    match location {
+//        "file://" =>
+//        "s3://" =>
+//    }
+//
+//    return LocalStore::new(loc[0], loc[1])
+//}
 
 fn main() {
     // CLI definition...
@@ -74,24 +68,32 @@ fn main() {
                         .subcommand(SubCommand::with_name("index")
                                     .about("Indexes an object sitting on object storage location")
                                     .arg(Arg::with_name("location")
-                                    .help("Store object location, i.e: s3://bucket/key.bam")
-                                    .required(false)))
+                                        .help("Object location to be indexed, i.e: s3://bucket/key.bam")
+                                        .required(true))
+                                    .arg(Arg::with_name("store")
+                                        .help("Store location to hold the index, i.e: file://local.db")
+                                        .required(false)))
                         .subcommand(SubCommand::with_name("search")
                                     .about("Searches the specified id")
                                     .arg(Arg::with_name("id")
-                                    .help("Bioinformatic attribute ID, i.e: chr1")
-                                    .required(true)))
+                                        .help("Bioinformatic attribute ID, i.e: chr1")
+                                        .required(true)))
                         .get_matches();
 
-    store = init_local_store(dotenv!("LOCAL_STORE"));
 
-    // ... and some argument action!
     match matches.subcommand() {
         ("index", Some(index)) => {
-            store = init_local_store(location);
-            htsget_index(index.value_of("location").unwrap().to_string());
+            let store = index.value_of("store").unwrap();
+            let location = index.value_of("location").unwrap();
+
+            htsget_index(location, store);
         },
-        ("search", Some(args)) => htsget_search(store, args),
+        ("search", Some(args)) => {
+            //XXX: Athena-only for now
+
+            let store = init_athena_store();
+            htsget_search(store, args)
+        },
         ("", None)   => println!("{}", matches.usage()),
         _            => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
     }
