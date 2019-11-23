@@ -26,9 +26,9 @@ fn htsget_search<I>(reads_index: I, args: &ArgMatches)
     let igvjs_htsget_example = ReadsRequest {
         url: "http://htsget.umccr.org/v1".to_string(),
         id: "BroadHiSeqX_b37/NA12878".to_string(),
-        chromosome: "chr1".to_string(),
-        start: 10000,
-        end: 10100
+        chromosome: "11".to_string(),
+        start: 5011963,
+        end: 5012660,
     };
 
     println!("Searching {:#?}: ", igvjs_htsget_example);

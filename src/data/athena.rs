@@ -66,7 +66,8 @@ impl ReadsIndex for AthenaStore {
         .and_then(|output| output.query_execution_id
             .ok_or(Error::ReadsQueryError { cause: "No reads found".to_string() }))?;
 
-    Self::wait_for_results(&self.client, &query_exec_id)?;
+      //XXX: Should handle errors, ? eats ReadsRef results for breakfast :/
+    Self::wait_for_results(&self.client, &query_exec_id);
 
     let refs = Vec::new();
     let query_results_input = GetQueryResultsInput {
@@ -156,16 +157,16 @@ impl AthenaStore {
     row.data.as_ref()
         .and_then(|cols| {
           cols[0].var_char_value.as_ref()
-              .and_then(|ref_name| {
+              .and_then(|coffset_start| {
                 cols[1].var_char_value.as_ref()
-                    .map(|cigar| (ref_name, cigar))
+                    .map(|coffset_end| (coffset_start, coffset_end))
               })
         })
-        .map(|(_ref_name, _cigar)| {
+        .map(|(coffset_start, coffset_end)| {
           let url = "XXX".to_string();
           let headers = ReadsRefHeaders {
             authorization: "Bearer all_good_for_now".to_string(),
-            range: "bytes=XXX".to_string() //XXX: translation between input coords and bytes
+            range: format!("bytes={}..{}", coffset_start, coffset_end)
           };
 
           ReadsRef::new(url, "body".to_string(), headers)
@@ -177,9 +178,10 @@ impl AthenaStore {
     let end = query_json.end;
     let chromosome = query_json.chromosome;
 
-    return format!("SELECT referencename, start, \"end\" \
-                    FROM htsget.umccr_htsget_dev \
-                    WHERE start >= {} AND \"end\" <= {} AND referencename = '{}' LIMIT 10;"
-                   , start, end, chromosome);
+      //XXX: Reasonable types for target_name et al
+    dbg!(format!("SELECT coffset_start, coffset_end \
+                    FROM htsget.csv \
+                    WHERE seq_start <= {} AND seq_end >= {} AND target_name = {};"
+                   , end, start, chromosome))
   }
 }
