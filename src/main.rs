@@ -11,7 +11,7 @@ use rusoto_core::Region;
 
 use crate::data::athena::AthenaStore;
 use crate::data::ReadsIndex;
-use crate::data::IgvParametersRequest;
+use crate::data::ReadsRequest;
 
 
 fn htsget_index(location: &str, _store: &str) {
@@ -23,7 +23,7 @@ fn htsget_search<I>(reads_index: I, args: &ArgMatches)
 
     let id = args.value_of("id").unwrap().to_string();
 
-    let igvjs_htsget_example = IgvParametersRequest {
+    let igvjs_htsget_example = ReadsRequest {
         url: "http://htsget.umccr.org/v1".to_string(),
         id: "BroadHiSeqX_b37/NA12878".to_string(),
         chromosome: "chr1".to_string(),

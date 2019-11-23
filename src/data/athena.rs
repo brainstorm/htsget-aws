@@ -10,7 +10,7 @@ use rusoto_core::{Region};
 
 use crate::data::{ReadsRef, ReadsRefHeaders, ReadsIndex};
 use crate::data::errors::{Error, Result};
-use crate::data::IgvParametersRequest;
+use crate::data::ReadsRequest;
 
 const TIMEOUT:u64 = 10;
 
@@ -56,75 +56,123 @@ impl AthenaStore {
   }
 }
 
-fn query_done(maybe_state: Option<QueryState>, start_time: time::Instant) -> bool {
+impl ReadsIndex for AthenaStore {
+  fn find_by_id(&self, id: ReadsRequest) -> Result<Vec<ReadsRef>, Error> {
+    let query_input = self.build_query_execution_input(id);
+
+    let query = self.client.start_query_execution(query_input);
+    let query_exec_id = query.sync()
+        .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
+        .and_then(|output| output.query_execution_id
+            .ok_or(Error::ReadsQueryError { cause: "No reads found".to_string() }))?;
+
+    Self::wait_for_results(&self.client, &query_exec_id)?;
+
+    let refs = Vec::new();
+    let query_results_input = GetQueryResultsInput {
+      query_execution_id: query_exec_id,
+      .. GetQueryResultsInput::default()
+    };
+    
+    let query_results = self.client.get_query_results(query_results_input).sync()
+      .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) });
+    
+    let reads = query_results.map(|res| {
+      res.result_set.as_ref()
+        .and_then(Self::extract_reads)
+        .ok_or(Error::ReadsQueryError { cause: "No metadata found".to_string() })
+    });
+
+    dbg!(reads);
+    Ok(refs)
+  }
+}
+
+impl AthenaStore {
+  fn build_query_execution_input(&self, id: ReadsRequest) -> StartQueryExecutionInput {
+    StartQueryExecutionInput {
+      client_request_token: Some(self.request_token.to_string()),
+      query_execution_context: Some(QueryExecutionContext {
+        database: Some(self.database.clone())
+      }),
+      result_configuration: Some(ResultConfiguration {
+        encryption_configuration: Default::default(),
+        output_location: Some(self.results_bucket.clone())
+      }),
+      work_group: Default::default(),
+      query_string: Self::igv_to_sql(id),
+    }
+  }
+
+  fn query_done(maybe_state: Option<QueryState>, start_time: time::Instant) -> bool {
     let one_second = time::Duration::from_secs(1);
 
     if time::Instant::now().duration_since(start_time).as_secs() < TIMEOUT {
-        false
+      false
     } else {
-        maybe_state.map(|state| match state {
-            QueryState::Succeeded => true,
-            QueryState::Cancelled | QueryState::Failed | QueryState::Unknown => false,
-            QueryState::Queued    | QueryState::Running => { thread::sleep(one_second); false },
-        }).unwrap_or(true)
+      maybe_state.map(|state| match state {
+        QueryState::Succeeded => true,
+        QueryState::Cancelled | QueryState::Failed | QueryState::Unknown => false,
+        QueryState::Queued    | QueryState::Running => { thread::sleep(one_second); false },
+      }).unwrap_or(true)
     }
-}
-
-fn wait_for_results(client: &AthenaClient, token: &String) -> Result <(), Error> {
-  let success = false;
-  let start_time = time::Instant::now();
-
-  let mut maybe_state = None;
-
-  while !query_done(maybe_state, start_time) {
-    let query_in = GetQueryExecutionInput { query_execution_id: token.clone() };
-    maybe_state = client.get_query_execution(query_in).sync()
-      .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
-      .map(|output| {
-        output.query_execution
-          .and_then(|query_exec| query_exec.status)
-          .and_then(|status| status.state.map(QueryState::from_string))
-      })?;
   }
 
-  if success {
-    Ok(())
-  } else {
-    Err(Error::ReadsQueryError { cause: "Timeout waiting for the query result".to_string() })
+  fn wait_for_results(client: &AthenaClient, token: &String) -> Result <(), Error> {
+    let success = false;
+    let start_time = time::Instant::now();
+
+    let mut maybe_state = None;
+
+    while !Self::query_done(maybe_state, start_time) {
+      let query_in = GetQueryExecutionInput { query_execution_id: token.clone() };
+      maybe_state = client.get_query_execution(query_in).sync()
+          .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
+          .map(|output| {
+            output.query_execution
+                .and_then(|query_exec| query_exec.status)
+                .and_then(|status| status.state.map(QueryState::from_string))
+          })?;
+    }
+
+    if success {
+      Ok(())
+    } else {
+      Err(Error::ReadsQueryError { cause: "Timeout waiting for the query result".to_string() })
+    }
   }
-}
 
-fn extract_reads(result_set: &ResultSet) -> Option<Vec<ReadsRef>> {
-  let read_refs: Vec<ReadsRef> = result_set.rows.iter()
-      .flat_map(|rows| rows.into_iter())
-      .flat_map(|row| extract_row(row).into_iter())
-      .collect();
-  
-  Some(read_refs)
-}
+  fn extract_reads(result_set: &ResultSet) -> Option<Vec<ReadsRef>> {
+    let read_refs: Vec<ReadsRef> = result_set.rows.iter()
+        .flat_map(|rows| rows.into_iter())
+        .flat_map(|row| Self::extract_row(row).into_iter())
+        .collect();
 
-//XXX: baseurl parameter
-fn extract_row(row: &Row) -> Option<ReadsRef> {
-  row.data.as_ref()
-    .and_then(|cols| {
-      cols[0].var_char_value.as_ref()
-        .and_then(|ref_name| {
-          cols[1].var_char_value.as_ref()
-            .map(|cigar| (ref_name, cigar))
+    Some(read_refs)
+  }
+
+  //XXX: baseurl parameter
+  fn extract_row(row: &Row) -> Option<ReadsRef> {
+    row.data.as_ref()
+        .and_then(|cols| {
+          cols[0].var_char_value.as_ref()
+              .and_then(|ref_name| {
+                cols[1].var_char_value.as_ref()
+                    .map(|cigar| (ref_name, cigar))
+              })
         })
-    })
-    .map(|(_ref_name, _cigar)| {
-      let url = "XXX".to_string();
-      let headers = ReadsRefHeaders {
-        authorization: "Bearer all_good_for_now".to_string(),
-        range: "bytes=XXX".to_string() //XXX: translation between input coords and bytes
-      };
+        .map(|(_ref_name, _cigar)| {
+          let url = "XXX".to_string();
+          let headers = ReadsRefHeaders {
+            authorization: "Bearer all_good_for_now".to_string(),
+            range: "bytes=XXX".to_string() //XXX: translation between input coords and bytes
+          };
 
-      ReadsRef::new(url, "body".to_string(), headers)
-    })
-}
+          ReadsRef::new(url, "body".to_string(), headers)
+        })
+  }
 
-fn igv_to_sql(query_json: IgvParametersRequest) -> String {
+  fn igv_to_sql(query_json: ReadsRequest) -> String {
     let start = query_json.start;
     let end = query_json.end;
     let chromosome = query_json.chromosome;
@@ -132,55 +180,6 @@ fn igv_to_sql(query_json: IgvParametersRequest) -> String {
     return format!("SELECT referencename, start, \"end\" \
                     FROM htsget.umccr_htsget_dev \
                     WHERE start >= {} AND \"end\" <= {} AND referencename = '{}' LIMIT 10;"
-                    , start, end, chromosome);
-}
-
-impl ReadsIndex for AthenaStore {
-  fn find_by_id(&self, id: IgvParametersRequest) -> Result<Vec<ReadsRef>, Error> {
-    let store = AthenaStore::new(Region::ApSoutheast2,
-                                 dotenv_codegen::dotenv!("AWS_ATHENA_DB").to_string(), 
-                                 dotenv_codegen::dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string());
-
-    let query_input = StartQueryExecutionInput {
-        client_request_token: Some(store.request_token.to_string()),
-        query_execution_context: Some(QueryExecutionContext {
-            database: Some(dotenv_codegen::dotenv!("AWS_ATHENA_DB").to_string())
-        }),
-        result_configuration: Some(ResultConfiguration {
-            encryption_configuration: Default::default(),
-            output_location: Some(dotenv_codegen::dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string())
-        }),
-        work_group: Default::default(),
-        query_string: igv_to_sql(id),
-    };
-
-    let query = store.client.start_query_execution(query_input); 
-    let query_exec_id = query.sync()
-        .map_err(|error| Error::ReadsQueryError { cause: format!("{:?}", error) })
-        .and_then(|output| {
-            output.query_execution_id
-                .ok_or(Error::ReadsQueryError { cause: "No reads found 1".to_string() })
-        })?;
-
-    wait_for_results(&store.client, &query_exec_id);
-
-    let refs = Vec::new();
-    let query_results_input = GetQueryResultsInput {
-      query_execution_id: query_exec_id,
-      max_results: Default::default(),
-      next_token: Default::default()
-    };
-    
-    let query_results = store.client.get_query_results(query_results_input).sync()
-      .map_err(|err| Error::ReadsQueryError { cause: format!("No reads found: {:?}", err) });
-    
-    let reads = query_results.map(|res| {
-      res.result_set.as_ref()
-        .and_then(extract_reads)
-        .ok_or(Error::ReadsQueryError { cause: "No metadata found".to_string() })
-    });
-
-    dbg!(reads);
-    Ok(refs)
+                   , start, end, chromosome);
   }
 }

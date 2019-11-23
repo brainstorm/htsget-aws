@@ -1,5 +1,5 @@
 use crate::data::ReadsIndex;
-use crate::data::IgvParametersRequest;
+use crate::data::ReadsRequest;
 use crate::data::{ReadsRef};
 use crate::data::errors::{Error, Result};
 
@@ -18,7 +18,7 @@ impl LocalStore {
 }
 
 impl ReadsIndex for LocalStore {
-    fn find_by_id (&self, id: IgvParametersRequest) -> Result<Vec<ReadsRef>, Error> {
+    fn find_by_id (&self, id: ReadsRequest) -> Result<Vec<ReadsRef>, Error> {
         let refs = Vec::new();
 
         Ok((refs))

@@ -11,7 +11,7 @@ use crate::data::errors::{Error, Result};
 // Minimum required parameters as seen on igv.js testsuite:
 // https://github.com/igvteam/igv.js/blob/0c8f6982bc4cc8756bfa5cf3c962ff81faf08284/test/testHtsgetReader.js#L43
 #[derive(Debug)]
-pub struct IgvParametersRequest {
+pub struct ReadsRequest {
     pub url: String,
     pub id: String,
     pub chromosome: String,
@@ -66,7 +66,7 @@ impl ReadsRef {
 
 //XXX: Change name
 pub trait ReadsIndex {
-    fn find_by_id(&self, id: IgvParametersRequest) -> Result<Vec<ReadsRef>, Error>;
+    fn find_by_id(&self, id: ReadsRequest) -> Result<Vec<ReadsRef>, Error>;
 }
 
 // trait VariantsIndex {
