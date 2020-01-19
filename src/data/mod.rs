@@ -1,10 +1,5 @@
-//use std::ops::Range;
-
-pub mod athena;
 pub mod errors;
-
 use crate::data::errors::{Error, Result};
-
 
 // XXX: Move to client module/class
 // Minimum required parameters as seen on igv.js testsuite:

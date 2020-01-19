@@ -9,7 +9,6 @@ use clap::{App, Arg, SubCommand, ArgMatches};
 
 use rusoto_core::Region;
 
-use crate::data::athena::AthenaStore;
 use crate::data::ReadsIndex;
 use crate::data::ReadsRequest;
 
@@ -41,38 +40,12 @@ fn htsget_search<I>(reads_index: I, args: &ArgMatches)
     }
 }
 
-fn init_athena_store() -> AthenaStore {
-    //let region = dotenv!("AWS_REGION").to_string();
-    let region = Region::default();
-    let database = dotenv!("AWS_ATHENA_DB").to_string();
-    let results_bucket = dotenv!("AWS_ATHENA_RESULTS_OUTPUT_BUCKET").to_string();
-
-    return AthenaStore::new(region, database, results_bucket)
-}
-
-//fn init_local_store(location: String) -> LocalStore {
-//    match location {
-//        "file://" =>
-//        "s3://" =>
-//    }
-//
-//    return LocalStore::new(loc[0], loc[1])
-//}
-
 fn main() {
     // CLI definition...
     let matches = App::new(crate_name!())
                         .version(crate_version!())
                         .author(crate_authors!())
                         .about("Retrieve bioinformatics data using REST")
-                        .subcommand(SubCommand::with_name("index")
-                                    .about("Indexes an object sitting on object storage location")
-                                    .arg(Arg::with_name("location")
-                                        .help("Object location to be indexed, i.e: s3://bucket/key.bam")
-                                        .required(true))
-                                    .arg(Arg::with_name("store")
-                                        .help("Store location to hold the index, i.e: file://local.db")
-                                        .required(false)))
                         .subcommand(SubCommand::with_name("search")
                                     .about("Searches the specified id")
                                     .arg(Arg::with_name("id")
@@ -82,16 +55,7 @@ fn main() {
 
 
     match matches.subcommand() {
-        ("index", Some(index)) => {
-            let store = index.value_of("store").unwrap();
-            let location = index.value_of("location").unwrap();
-
-            htsget_index(location, store);
-        },
         ("search", Some(args)) => {
-            //XXX: Athena-only for now
-
-            let store = init_athena_store();
             htsget_search(store, args)
         },
         ("", None)   => println!("{}", matches.usage()),
