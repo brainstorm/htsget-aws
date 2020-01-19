@@ -1,6 +1,5 @@
 //use std::ops::Range;
 
-pub mod local;
 pub mod athena;
 pub mod errors;
 
@@ -20,10 +19,10 @@ pub struct ReadsRequest {
 }
 
 // htsget response as described in: https://samtools.github.io/hts-specs/htsget.html
-struct HtsGetResponse {
-    format: Format,
-    urls: ReadsRef
-}
+//struct HtsGetResponse {
+//    format: Format,
+//    urls: ReadsRef
+//}
 
 #[allow(dead_code)]
 #[derive(Debug)]

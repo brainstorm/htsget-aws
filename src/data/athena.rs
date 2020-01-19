@@ -1,9 +1,6 @@
 use uuid::Uuid;
 use std::{thread, time};
 
-//#[macro_use]
-use dotenv_codegen;
-
 // Rusoto
 use rusoto_athena::*;
 use rusoto_core::{Region};
@@ -157,16 +154,16 @@ impl AthenaStore {
     row.data.as_ref()
         .and_then(|cols| {
           cols[0].var_char_value.as_ref()
-              .and_then(|coffset_start| {
+              .and_then(|bytes_start| {
                 cols[1].var_char_value.as_ref()
-                    .map(|coffset_end| (coffset_start, coffset_end))
+                    .map(|bytes_end| (bytes_start, bytes_end))
               })
         })
-        .map(|(coffset_start, coffset_end)| {
+        .map(|(bytes_start, bytes_end)| {
           let url = "XXX".to_string();
           let headers = ReadsRefHeaders {
             authorization: "Bearer all_good_for_now".to_string(),
-            range: format!("bytes={}..{}", coffset_start, coffset_end)
+            range: format!("bytes={}-{}", bytes_start, bytes_end)
           };
 
           ReadsRef::new(url, "body".to_string(), headers)
@@ -179,9 +176,9 @@ impl AthenaStore {
     let chromosome = query_json.chromosome;
 
       //XXX: Reasonable types for target_name et al
-    dbg!(format!("SELECT coffset_start, coffset_end \
-                    FROM htsget.csv \
-                    WHERE seq_start <= {} AND seq_end >= {} AND target_name = {};"
+    dbg!(format!("SELECT bytes_start, bytes_end \
+                    FROM htsget.json \
+                    WHERE seq_start <= {} AND seq_end >= {} AND target = '{}';"
                    , end, start, chromosome))
   }
 }

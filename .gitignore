@@ -6,4 +6,6 @@ rustfmt.toml
 .vscode
 .env
 vendor
+postgres-data
 .idea
+Cargo.lock
