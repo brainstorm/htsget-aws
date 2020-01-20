@@ -8,13 +8,18 @@ provider:
   region: ap-southeast-2
   endpointType: REGIONAL
 
+custom:
+  serverless-offline:
+    resourceRoutes: true
+
 # Package reads.zip and variants.zip to deploy as corresponding endpoints
 package:
   individually: true
 
 plugins:
-  - serverless-offline
   - serverless-rust
+  - serverless-offline
+
 functions:
   reads:
     handler: htsget.reads

@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "bufferutil": "^4.0.1",
+    "serverless": "^1.61.2",
     "set-value": "^3.0.1",
     "utf-8-validate": "^5.0.2"
   }
