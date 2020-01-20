@@ -1,11 +1,14 @@
 {
   "devDependencies": {
-    "serverless": "^1.49.0",
-    "serverless-offline": "^4.10.6",
-    "serverless-rust": "^0.3.5"
+    "serverless-offline": "^5.12.1",
+    "serverless-rust": "^0.3.7"
   },
   "name": "htsget-aws",
+  "repository": "https://github.com/brainstorm/htsget-aws",
+  "license": "MIT",
   "dependencies": {
-    "set-value": "^3.0.1"
+    "bufferutil": "^4.0.1",
+    "set-value": "^3.0.1",
+    "utf-8-validate": "^5.0.2"
   }
 }

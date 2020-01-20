@@ -13,9 +13,8 @@ package:
   individually: true
 
 plugins:
+  - serverless-offline
   - serverless-rust
-
-
 functions:
   reads:
     handler: htsget.reads

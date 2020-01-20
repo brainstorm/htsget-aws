@@ -1,5 +1,5 @@
 pub mod errors;
-use crate::data::errors::{Error, Result};
+//use crate::data::errors::{Error, Result};
 
 // XXX: Move to client module/class
 // Minimum required parameters as seen on igv.js testsuite:
@@ -36,31 +36,16 @@ enum Class {
 }
 
 #[derive(Debug)]
-pub struct ReadsRef {
+pub struct ReadsResponse {
     url: String,
     class: String,
-    headers: ReadsRefHeaders,
+    headers: ReadsRequestHeaders,
 }
 
 #[derive(Debug)]
-struct ReadsRefHeaders {
+struct ReadsRequestHeaders {
     authorization: String,
     range: String,
-}
-
-impl ReadsRef {
-    fn new(url: String, class: String, headers: ReadsRefHeaders) -> ReadsRef {
-        ReadsRef {
-            url,
-            class,
-            headers
-        }
-    }
-}
-
-//XXX: Change name
-pub trait ReadsIndex {
-    fn find_by_id(&self, id: ReadsRequest) -> Result<Vec<ReadsRef>, Error>;
 }
 
 // trait VariantsIndex {

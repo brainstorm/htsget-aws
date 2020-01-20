@@ -8,22 +8,16 @@ edition = "2018"
 # name = "hstget"
 # doc = false
 
-# [patch.crates-io]
-# rusoto_core = { git = 'https://github.com/hhatto/rusoto/', branch = 'improve-parse-error-message-on-other-service', default_features = false, features=["rustls"] }
-
 [dependencies]
 lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
-serde_json = "1.0.40"
-env_logger = "0.6.2"
-dotenv_codegen = "0.14.1"
+serde_json = "1.0.44"
+env_logger = "0.7.1"
 uuid = { version = "0.7.4", features = ["serde", "v4"] }
-futures = "0.1.29"
-#futures-preview = { version = "=0.3.0-alpha.17", features = ["compat", "async-await", "nightly"] }
-# tokio-core = { version = "0.1.17" }
-tokio = "0.1.22"
-snafu = "0.5.0"
-rust-htslib = "0.26.0"
+futures = "0.3.1"
+tokio = "0.2.9"
+snafu = "0.6.2"
+rust-htslib = "0.26.1"
 
 # Just barebones clap, no coloring, etc...
 clap = { default-features = false, version = "2.33.0"}
@@ -34,5 +28,4 @@ clap = { default-features = false, version = "2.33.0"}
 # file for both the rusoto_core crate and any Rusoto service 
 # crates used" "rustls" is required for all lambdas
 # """
-rusoto_athena = { default_features = false, features=["rustls"], version = "0.41.0" }
 rusoto_core = { default_features = false, features=["rustls"], version = "0.41.0" }
