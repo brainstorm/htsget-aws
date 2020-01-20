@@ -1,5 +1,6 @@
 use lambda_http::{lambda, IntoResponse, Request};
 use lambda_runtime::{error::HandlerError, Context};
+use bio-index-formats::parse_bai;
 use serde_json::json;
 
 fn main() {

@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate clap;
 
-mod data;
-
 use clap::{App, Arg, SubCommand};
 use htsget::data::{ ReadsRequest, ReadsResponse };
 
