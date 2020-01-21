@@ -104,15 +104,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bio-index-formats"
-version = "0.1.0"
-source = "git+https://github.com/brainstorm/bio-index-formats#53c463a5ab65d5830b46a3efb6d6a1cebb3cef28"
-dependencies = [
- "nom 5.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rust-htslib 0.26.1 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "bio-types"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -122,6 +113,15 @@ dependencies = [
  "regex 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "bio_index_formats"
+version = "0.1.0"
+source = "git+https://github.com/brainstorm/bio-index-formats#8ec1b417c6b0c64c8c88e9896f979233b087c9e1"
+dependencies = [
+ "nom 5.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rust-htslib 0.26.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1148,7 +1148,7 @@ dependencies = [
 name = "reads"
 version = "0.1.0"
 dependencies = [
- "bio-index-formats 0.1.0 (git+https://github.com/brainstorm/bio-index-formats)",
+ "bio_index_formats 0.1.0 (git+https://github.com/brainstorm/bio-index-formats)",
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lambda_http 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lambda_runtime 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2106,8 +2106,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum base64 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0b25d992356d2eb0ed82172f5248873db5560c4721f564b13cb5193bda5e668e"
 "checksum base64 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b41b7ea54a0c9d92199de89e20e58d49f02f8e699814ef3fdf266f6f748d15c7"
 "checksum bindgen 0.51.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ebd71393f1ec0509b553aa012b9b58e81dadbdff7130bd3b8cba576e69b32f75"
-"checksum bio-index-formats 0.1.0 (git+https://github.com/brainstorm/bio-index-formats)" = "<none>"
 "checksum bio-types 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "94fb49f226ebd14a668fbcf268241a3d81021e4f6882dda8bbc42f05ea823fd4"
+"checksum bio_index_formats 0.1.0 (git+https://github.com/brainstorm/bio-index-formats)" = "<none>"
 "checksum bitflags 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8a606a02debe2813760609f57a64a2ffd27d9fdf5b2f133eaca0b248dd92cdd2"
 "checksum blake2b_simd 0.5.8 (registry+https://github.com/rust-lang/crates.io-index)" = "5850aeee1552f495dd0250014cf64b82b7c8879a89d83b33bbdace2cc4f63182"
 "checksum block-buffer 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)" = "c0940dc441f31689269e10ac70eb1002a3a1d3ad1390e030043662eb7fe4688b"

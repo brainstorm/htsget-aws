@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2018"
 #autobins = false
 
+#[[bin]]
+#path = "src/main.rs"
+#name = "reads"
+
 [dependencies]
 lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
@@ -11,10 +15,10 @@ serde_json = "1.0.44"
 env_logger = "0.7.1"
 uuid = { version = "0.7.4", features = ["serde", "v4"] }
 #snafu = "0.6.2"
-rust-htslib = "0.26.1"
 #bio-index-formats = { version = "0.1.0", path = "../bio-index-formats" }
-bio-index-formats = { version = "0.1.0", git = "https://github.com/brainstorm/bio-index-formats" }
+bio_index_formats = { version = "0.1.0", git = "https://github.com/brainstorm/bio-index-formats" }
 
+rust-htslib = "0.26.1"
 
 # https://www.rusoto.org/lambdas.html
 # """
