@@ -1,9 +1,3 @@
-pub mod errors;
-//use crate::data::errors::{Error, Result};
-
-// XXX: Move to client module/class
-// Minimum required parameters as seen on igv.js testsuite:
-// https://github.com/igvteam/igv.js/blob/0c8f6982bc4cc8756bfa5cf3c962ff81faf08284/test/testHtsgetReader.js#L43
 #[derive(Debug)]
 pub struct ReadsRequest {
     pub url: String,
@@ -47,7 +41,3 @@ struct ReadsRequestHeaders {
     authorization: String,
     range: String,
 }
-
-// trait VariantsIndex {
-//     fn search_by_id(id: String) -> Range;
-// }

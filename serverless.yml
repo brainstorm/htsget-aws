@@ -22,7 +22,7 @@ plugins:
 
 functions:
   reads:
-    handler: htsget.reads
+    handler: reads
     events:
       - http:
           authorizer: aws_iam
@@ -30,7 +30,7 @@ functions:
           method: GET
 
   # variants:
-  #   handler: htsget.variants
+  #   handler: variants
   #   events:
   #     - http:
   #         authorizer: aws_iam

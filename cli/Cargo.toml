@@ -1,0 +1,9 @@
+[package]
+name = "cli"
+version = "0.1.0"
+edition = "2018"
+autobins = false
+
+[dependencies]
+# Just barebones clap, no coloring, etc...
+clap = { default-features = false, version = "2.33.0"}

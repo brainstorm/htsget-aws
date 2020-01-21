@@ -1,33 +1,6 @@
-[package]
-name = "htsget"
-version = "0.1.0"
-edition = "2018"
-autobins = false
-
-#[[bin]]
-#name = "bootstrap"
-#path = "src/main.rs"
-
-[dependencies]
-lambda_runtime = "0.2.1"
-lambda_http = "0.1.1"
-serde_json = "1.0.44"
-env_logger = "0.7.1"
-uuid = { version = "0.7.4", features = ["serde", "v4"] }
-futures = "0.3.1"
-tokio = "0.2.9"
-snafu = "0.6.2"
-rust-htslib = "0.26.1"
-#bio-index-formats = { version = "0.1.0", path = "../bio-index-formats" }
-bio-index-formats = { version = "0.1.0", git = "https://github.com/brainstorm/bio-index-formats" }
-
-# Just barebones clap, no coloring, etc...
-clap = { default-features = false, version = "2.33.0"}
-
-# https://www.rusoto.org/lambdas.html
-# """
-# The rustls option must be set on the project's Cargo.toml 
-# file for both the rusoto_core crate and any Rusoto service 
-# crates used" "rustls" is required for all lambdas
-# """
-rusoto_core = { default_features = false, features=["rustls"], version = "0.42.0" }
+[workspace]
+members = [
+    "reads",
+    #"variants",
+    #"cli",
+    ]
