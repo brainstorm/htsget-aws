@@ -8,9 +8,9 @@ provider:
   region: ap-southeast-2
   endpointType: REGIONAL
 
-#custom:
-#  serverless-offline:
-#    resourceRoutes: true
+custom:
+  serverless-offline:
+    resourceRoutes: true
 
 # Package reads.zip and variants.zip to deploy as corresponding endpoints
 package:
@@ -18,7 +18,7 @@ package:
 
 plugins:
   - serverless-rust
-#  - serverless-offline
+  - serverless-offline
 
 functions:
   reads:
