@@ -1,9 +1,10 @@
 use lambda_http::{lambda, IntoResponse, Request};
 use lambda_runtime::{error::HandlerError, Context};
-//use bio_index_formats::parser_bai::parse_bai;
 
-use serde_json::json;
-use reads::{Format, htsget_response, Class};
+use reads::{Format, Class, htsget_response, htsget_request, reference_ids, bucket_obj_bytes};
+use bio_index_formats::parser_bai::parse_bai;
+use rusoto_core::Region;
+use rusoto_s3::S3Client;
 
 fn main() {
     // Init env logger for debugging: https://www.rusoto.org/debugging.html
@@ -11,19 +12,38 @@ fn main() {
     lambda!(handler);
 }
 
-fn handler(
+async fn handler(
     _req: Request,
     _ctx: Context,
 ) -> Result<impl IntoResponse, HandlerError> {
 
-    let url = "https://some_presigned_url".to_string();
+    let region = Region::default();
+    let s3 = S3Client::new(region);
+    let bucket = "umccr-misc-temp".to_string();
+    let obj_bam_path = "htsget_sample.bam".to_string();
+    let obj_bai_path = "htsget/sample.bam.bai".to_string();
+    let chrom = "11".to_string();
+    let chrom_start = 4999976 as u32;
+    let chrom_end = 5002147 as u32;
     let auth = "Bearer: foo".to_string();
-    let range = "bytes = 1-100".to_string();
 
-    let htsget = htsget_response(auth, range,
-                                                        url, Format::BAM, Class::Body);
+    // Get BAI from AWS
+    let bai_bytes = bucket_obj_bytes(s3, bucket, obj_bai_path).await.unwrap();
+
+    // Parse BAI
+    let bai = parse_bai(bai_bytes.into_async_read().as_bytes());
+    let refs = bai.map(|r| r.1.refs)?;
+
+    // Get "symbols" such as chr1 from BAM header
+    let ref_ids = reference_ids(obj_name_bam);
+    let ref_id = ref_names.iter().position(|name| name == chrom).unwrap();
+    let reference = &refs[ref_id];
+
+    // Send request and fetch response
+    let range = htsget_request(reference, chrom_start, chrom_end);
+    let res = htsget_response(auth, range, url, Format::BAM, Class::Body);
 
     //let htsget = serde_json::to_string(&container)?;
-
-    Ok(json!(htsget))
+    Ok(serde_json::to_string(&res)?)
+    //Ok(json!(htsget))
 }
