@@ -2,11 +2,6 @@
 name = "reads"
 version = "0.1.0"
 edition = "2018"
-#autobins = false
-
-#[[bin]]
-#path = "src/main.rs"
-#name = "reads"
 
 [dependencies]
 env_logger = "0.7.1"
@@ -21,9 +16,5 @@ bio_index_formats = { version = "0.1.0", git = "https://github.com/brainstorm/bi
 rust-htslib = "0.26.1"
 
 # https://www.rusoto.org/lambdas.html
-# """
-# The rustls option must be set on the project's Cargo.toml
-# file for both the rusoto_core crate and any Rusoto service
-# crates used" "rustls" is required for all lambdas
-# """
 rusoto_core = { default_features = false, features=["rustls"], version = "0.42.0" }
+rusoto_s3 = { default_features = false, features=["rustls"], version = "0.42.0" }
