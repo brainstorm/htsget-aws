@@ -113,7 +113,7 @@ pub async fn bucket_obj_bytes(client: S3Client, bucket: String, obj_path: String
 
     let result = client
         .get_object(get_req)
-        .await?;
+        .await;
 
-    result.body
+    result.unwrap().body
 }
