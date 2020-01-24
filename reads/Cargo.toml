@@ -16,5 +16,5 @@ bio_index_formats = { version = "0.1.0", git = "https://github.com/brainstorm/bi
 rust-htslib = "0.26.1"
 
 # https://www.rusoto.org/lambdas.html
-rusoto_core = { default_features = false, features=["rustls"], version = "0.42.0" }
-rusoto_s3 = { default_features = false, features=["rustls"], version = "0.42.0" }
+rusoto_core = { default_features = false, features=["rustls"], version = "0.43.0", git = "https://github.com/bcmcmill/rusoto", branch = "async_await" }
+rusoto_s3 = { default_features = false, features=["rustls"], version = "0.43.0", git = "https://github.com/bcmcmill/rusoto", branch = "async_await" }
