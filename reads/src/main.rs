@@ -5,8 +5,6 @@ use reads::{Format, Class, htsget_response, htsget_request, reference_ids, bucke
 use bio_index_formats::parser_bai::parse_bai;
 use rusoto_core::Region;
 use rusoto_s3::S3Client;
-use futures::{StreamExt, TryStreamExt, TryFutureExt};
-use tokio_codec::{ FramedRead, BytesCodec };
 
 fn main() {
     // Init env logger for debugging: https://www.rusoto.org/debugging.html
@@ -33,16 +31,17 @@ async fn handler(
     // Get BAI from AWS
     let bai_bytes = bucket_obj_bytes(s3, bucket, obj_bai_path).await.unwrap();
 
+
     // https://stackoverflow.com/questions/57810173/streamed-upload-to-s3-with-rusoto/59884256#comment102487432_57812269
-    let byte_stream = FramedRead::new(bai_bytes, BytesCodec::new()).map(|r| r.freeze())?;
+    // let byte_stream = FramedRead::new(bai_bytes, BytesCodec::new()).map(|r| r.freeze())?;
 
     // Parse BAI
-    let bai = parse_bai(byte_stream);
-    let refs = bai.map(|r| r.1.refs)?;
+    let bai = parse_bai(bai_bytes);
+    let refs = bai.map(|r| r.1.refs).unwrap();
 
     // Get "symbols" such as chr1 from BAM header
     let ref_ids = reference_ids(obj_bam_path);
-    let ref_id = ref_ids.iter().position(|name| name == chrom).unwrap();
+    let ref_id = ref_ids.iter().position(|name| name == &chrom).unwrap();
     let reference = &refs[ref_id];
 
     // Send request and fetch response
