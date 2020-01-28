@@ -21,5 +21,5 @@ tokio-io = "0.2.0-alpha.6"
 futures = "0.3.1"
 bytes = "0.5.3"
 # https://www.rusoto.org/lambdas.html
-rusoto_core = { default_features = false, features=["rustls"], version = "0.43.0", git = "https://github.com/bcmcmill/rusoto", branch = "async_await" }
-rusoto_s3 = { default_features = false, features=["rustls"], version = "0.43.0", git = "https://github.com/bcmcmill/rusoto", branch = "async_await" }
+rusoto_core = { default_features = false, features=["rustls"], version = "0.50.0", git = "https://github.com/jen20/rusoto", branch = "jen20/rebase-tokio-02" }
+rusoto_s3 = { default_features = false, features=["rustls"], version = "0.50.0", git = "https://github.com/jen20/rusoto", branch = "jen20/rebase-tokio-02" }
