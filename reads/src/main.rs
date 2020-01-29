@@ -5,14 +5,11 @@ use lambda_runtime::Context;
 use reads::{Format, Class, htsget_response, htsget_request, reference_ids, bucket_obj_bytes};
 use bio_index_formats::parser_bai::parse_bai;
 
-use futures::stream::StreamExt;
+use std::io::Read;
 use rusoto_core::Region;
 use rusoto_s3::S3Client;
 use serde_json::json;
 
-// https://github.com/awslabs/aws-lambda-rust-runtime/issues/14#issuecomment-569046122
-//#[tokio::main]
-//async fn main() {
 fn main() {
     // Init env logger for debugging: https://www.rusoto.org/debugging.html
     let _ = env_logger::try_init();
@@ -20,7 +17,6 @@ fn main() {
 }
 
 fn handler(
-//async fn handler(
     _req: Request,
     _ctx: Context,
 ) -> Result<impl IntoResponse, HandlerError> {
@@ -37,24 +33,11 @@ fn handler(
     let auth = "Bearer: foo".to_string();
 
     // Get BAI from AWS
-    let bai_stream = bucket_obj_bytes(s3, bucket, obj_bai_path).await.unwrap();
+    let bai_stream = bucket_obj_bytes(s3, bucket.clone(), obj_bai_path);
 
-
-    // https://stackoverflow.com/questions/57810173/streamed-upload-to-s3-with-rusoto/59884256#comment102487432_57812269
-    // let byte_stream = FramedRead::new(bai_bytes, BytesCodec::new()).map(|r| r.freeze())?;
-
-    /*
-    Sadly it's become a bit painful to concatenate a stream of Bytes at the moment
-    (see: https://github.com/tokio-rs/bytes/issues/324)
-    In the meantime doing a while let Some(bytes) = stream.next().await { ... }
-    and extend some Vec<u8> inside the loop then pass that to parse_bai
-    */
-
-    let mut bai_iter = bai_stream;
-    let mut bai_vec = Vec::<u8>::new();
-    while let Some(b) = bai_iter.next().await {
-        bai_vec.extend(&b.unwrap());
-    }
+    // Convert ByteStream to slice of bytes (&[u8]'s)
+    let mut bai_vec = Vec::new();
+    bai_stream.map(|astream| astream.into_blocking_read().read_to_end(&mut bai_vec));
 
     // Parse BAI
     let bai = parse_bai(&bai_vec);
@@ -67,7 +50,7 @@ fn handler(
 
     // Send request and fetch response
     let range = htsget_request(reference, chrom_start, chrom_end);
-    let res = htsget_response(auth, range, bucket, Format::BAM, Class::Body);
+    let res = htsget_response(auth, range, bucket.clone(), Format::BAM, Class::Body);
 
     Ok(json!(res))
 }

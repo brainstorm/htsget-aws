@@ -104,7 +104,7 @@ pub fn reference_ids(bam_fname: String) -> Vec<String> {
         .collect()
 }
 
-pub async fn bucket_obj_bytes(client: S3Client, bucket: String, obj_path: String) -> Option<StreamingBody> {
+pub fn bucket_obj_bytes(client: S3Client, bucket: String, obj_path: String) -> Option<StreamingBody> {
     let get_req = GetObjectRequest {
         bucket,
         key: obj_path,
@@ -112,8 +112,7 @@ pub async fn bucket_obj_bytes(client: S3Client, bucket: String, obj_path: String
     };
 
     let result = client
-        .get_object(get_req)
-        .await;
+        .get_object(get_req).sync().expect("Couldn't GET object");
 
-    result.unwrap().body
+    result.body
 }
