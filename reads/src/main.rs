@@ -1,5 +1,6 @@
 use lambda_http::{lambda, IntoResponse, Request};
-use lambda_runtime::{error::HandlerError, Context};
+use lambda_runtime::error::HandlerError;
+use lambda_runtime::Context;
 
 use reads::{Format, Class, htsget_response, htsget_request, reference_ids, bucket_obj_bytes};
 use bio_index_formats::parser_bai::parse_bai;
@@ -18,8 +19,8 @@ fn main() {
     lambda!(handler);
 }
 
-async fn handler(
-//fn handler(
+fn handler(
+//async fn handler(
     _req: Request,
     _ctx: Context,
 ) -> Result<impl IntoResponse, HandlerError> {
@@ -52,7 +53,7 @@ async fn handler(
     let mut bai_iter = bai_stream;
     let mut bai_vec = Vec::<u8>::new();
     while let Some(b) = bai_iter.next().await {
-        bai_vec.push(b.unwrap()[0]);
+        bai_vec.extend(&b.unwrap());
     }
 
     // Parse BAI
