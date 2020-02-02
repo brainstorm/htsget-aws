@@ -5,10 +5,10 @@ edition = "2018"
 
 [dependencies]
 env_logger = "0.7.1"
-lambda_runtime = "0.2.1"
-lambda_http = "0.1.1"
-#lambda = { version = "0.1.0", git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch="async-await" }
-#lambda_http = { version = "0.1.1", git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch="async-await" }
+#lambda_runtime = "0.2.1"
+#lambda_http = "0.1.1"
+lambda = { version = "0.1.0", git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch="async-await" }
+lambda_http = { version = "0.1.1", git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch="async-await" }
 serde = { version = "1.0.104", features = ["derive"] }
 serde_json = "1.0.44"
 uuid = { version = "0.7.4", features = ["serde", "v4"] }

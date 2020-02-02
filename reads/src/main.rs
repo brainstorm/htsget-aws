@@ -1,6 +1,5 @@
-use lambda_http::{lambda, IntoResponse, Request};
-use lambda_runtime::error::HandlerError;
-use lambda_runtime::Context;
+use lambda_http::{IntoResponse, Request};
+use lambda::lambda;
 
 use reads::{Format, Class, htsget_response, htsget_request, reference_ids, bucket_obj_bytes};
 use bio_index_formats::parser_bai::parse_bai;
@@ -10,19 +9,17 @@ use rusoto_core::Region;
 use rusoto_s3::S3Client;
 use serde_json::json;
 
-// https://github.com/awslabs/aws-lambda-rust-runtime/issues/14#issuecomment-569046122
-//#[tokio::main]
-//async fn main() {
-fn main() {
-    // Init env logger for debugging: https://www.rusoto.org/debugging.html
-    let _ = env_logger::try_init();
-    lambda!(handler);
+// Otherwise the lambda returns "internal" json AWS fields that
+// are not part of the raw htsget payload we want
+#[derive(Serialize)]
+struct CustomOutput {
+    message: String,
 }
 
-fn handler(
-//async fn handler(
-    _req: Request,
-    _ctx: Context,
+#[lambda]
+#[tokio::main]
+async fn main(
+    event: String,
 ) -> Result<impl IntoResponse, HandlerError> {
 
     let region = Region::default();
@@ -69,5 +66,5 @@ fn handler(
     let range = htsget_request(reference, chrom_start, chrom_end);
     let res = htsget_response(auth, range, bucket, Format::BAM, Class::Body);
 
-    Ok(json!(res))
+    Ok( CustomOutput{ message: json!(res).to_string() })
 }
