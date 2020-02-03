@@ -7,13 +7,9 @@ edition = "2018"
 env_logger = "0.7.1"
 lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
-#lambda = { version = "0.1.0", git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch="async-await" }
-#lambda_http = { version = "0.1.1", git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch="async-await" }
 serde = { version = "1.0.104", features = ["derive"] }
 serde_json = "1.0.44"
 uuid = { version = "0.7.4", features = ["serde", "v4"] }
-#snafu = "0.6.2"
-#bio-index-formats = { version = "0.1.0", path = "../bio-index-formats" }
 bio_index_formats = { version = "0.1.1", git = "https://github.com/brainstorm/bio-index-formats" }
 rust-htslib = "0.26.1"
 
@@ -22,8 +18,6 @@ tokio-codec = "0.2.0-alpha.5"
 tokio-io = "0.2.0-alpha.6"
 futures = "0.3.1"
 bytes = "0.5.3"
-# https://www.rusoto.org/lambdas.html
-#rusoto_core = { default_features = false, features=["rustls"], version = "0.43.0-beta1", git = "https://github.com/jen20/rusoto", branch = "jen20/rebase-tokio-02" }
-#rusoto_s3 = { default_features = false, features=["rustls"], version = "0.43.0-beta1", git = "https://github.com/jen20/rusoto", branch = "jen20/rebase-tokio-02" }
+
 rusoto_core = { default_features = false, features=["rustls"], version = "0.42.0" }
 rusoto_s3 = { default_features = false, features=["rustls"], version = "0.42.0" }
