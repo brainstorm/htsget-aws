@@ -1,7 +1,6 @@
 {
   "devDependencies": {
-    "serverless-offline": "^5.12.1",
-    "serverless-rust": "^0.3.7"
+    "serverless-offline": "^5.12.1"
   },
   "name": "htsget-aws",
   "repository": "https://github.com/brainstorm/htsget-aws",
@@ -9,6 +8,7 @@
   "dependencies": {
     "bufferutil": "^4.0.1",
     "serverless": "^1.61.3",
+    "serverless-rust": "file:../serverless-rust",
     "set-value": "^3.0.1",
     "utf-8-validate": "^5.0.2"
   }
