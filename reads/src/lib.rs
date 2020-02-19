@@ -1,11 +1,13 @@
+use std::io::{Read, Write};
+use std::fs::File;
 use std::path::Path;
 use serde::{ Serialize };
 
 use bio_index_formats::parser_bai::{coffset, Ref};
 use bio_index_formats::csi::{ reg2bin };
 
-use rust_htslib::bam::{ Reader, Read };
-use rusoto_s3::{GetObjectRequest, S3Client, S3, StreamingBody};
+use rust_htslib::bam::{ Reader, Read as BamRead };
+use rusoto_s3::{GetObjectRequest, S3Client, S3};
 
 // Htsget request/response bodies as described in spec
 // https://samtools.github.io/hts-specs/htsget.html
@@ -96,23 +98,35 @@ pub fn htsget_response(auth: String, byte_range: (u32, u32),
 }
 
 /// Gets the header (first few bytes) from a BAM to translate BAI indexes into names
-pub fn reference_ids(bam_fname: String) -> Vec<String> {
-    let reader = Reader::from_path(&Path::new(bam_fname.as_str())).expect("Cannot read BAM file");
+pub fn reference_ids(client: S3Client, bucket: String, obj: &Path) -> Vec<String> {
+    let bam_bytes = s3_getobj(client, bucket, obj);
+//    let lambda_bai = Path::new("/tmp/");
+
+//    // From bytes to local lambda file for now since async-await/streaming is painful
+//    let mut file = File::create(obj.file_name().unwrap()).expect("create failed");
+//    file.write_all(&bam_bytes).expect("failed to write BAM to lambda storage");
+
+    let reader = Reader::from_path(lambda_bai).expect("Cannot read BAM file");
 
     reader.header().target_names().into_iter()
         .map(|refname| String::from_utf8_lossy(refname).to_string())
         .collect()
 }
 
-pub fn bucket_obj_bytes(client: S3Client, bucket: String, obj_path: String) -> Option<StreamingBody> {
+pub fn s3_getobj(client: S3Client, bucket: String, obj: &Path) -> Vec<u8> {
+    let mut buf:Vec<u8> = Vec::new();
+
     let get_req = GetObjectRequest {
         bucket,
-        key: obj_path,
+        key: obj.to_string_lossy().to_string(),
         ..Default::default()
     };
 
     let result = client
         .get_object(get_req).sync().expect("Couldn't GET object");
 
-    result.body
+    // Convert ByteStream to slice of bytes (&[u8]'s) to buf
+    result.body.map(|astream| astream.into_blocking_read().read_to_end(&mut buf));
+
+    buf
 }
