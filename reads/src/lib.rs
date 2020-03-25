@@ -88,8 +88,7 @@ pub fn htsget_request(reference: &Ref, start: u32, end: u32) -> (u32, u32) {
 }
 
 pub fn htsget_response(auth: String, byte_range: (u32, u32),
-                       url: String, format: Format, class: Class)
-                       -> HtsGetResponseContainer {
+                        url: String, format: Format, class: Class) -> HtsGetResponseContainer {
 
     let headers = ReadsRequestHeaders { auth, byte_range };
     let reads_ranges = ReadsResponse { url, class, headers };

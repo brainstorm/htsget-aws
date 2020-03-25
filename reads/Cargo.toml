@@ -7,11 +7,11 @@ edition = "2018"
 env_logger = "0.7.1"
 lambda_runtime = "0.2.1"
 lambda_http = "0.1.1"
-serde = { version = "1.0.104", features = ["derive"] }
-serde_json = "1.0.44"
-uuid = { version = "0.7.4", features = ["serde", "v4"] }
+serde = { version = "1.0.105", features = ["derive"] }
+serde_json = "1.0.48"
+uuid = { version = "0.8.1", features = ["serde", "v4"] }
 bio_index_formats = { version = "0.1.1", git = "https://github.com/brainstorm/bio-index-formats" }
-rust-htslib = "0.26.1"
+rust-htslib = { path= "../../rust-htslib" }
 
 tokio = { version = "0.2.10", features = ["full"] }
 tokio-codec = "0.2.0-alpha.5"
@@ -19,5 +19,5 @@ tokio-io = "0.2.0-alpha.6"
 futures = "0.3.1"
 bytes = "0.5.3"
 
-rusoto_core = { default_features = false, features=["rustls"], version = "0.42.0" }
-rusoto_s3 = { default_features = false, features=["rustls"], version = "0.42.0" }
+rusoto_core = { default_features = false, features=["rustls"], version = "0.43.0" }
+rusoto_s3 = { default_features = false, features=["rustls"], version = "0.43.0" }

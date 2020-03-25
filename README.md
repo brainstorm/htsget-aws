@@ -1,6 +1,6 @@
 # Serverless htsget
 
-Proof of concept for a htsget serverless implementation, using AWS lambdas and Rust as a runtime.
+Proof of concept for a htsget serverless implementation, using AWS lambdas and Rust as a runtime. This is a work in progress still, rust-htslib, htslib and [bio-index-formats](https://github.com/brainstorm/bio-index-formats) need more work.
 
 # Quickstart
 
