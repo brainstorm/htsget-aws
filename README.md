@@ -2,6 +2,8 @@
 
 Proof of concept for a htsget serverless implementation, using AWS lambdas and Rust as a runtime. This is a work in progress still, [rust-htslib](https://github.com/rust-bio/rust-htslib/pull/193), htslib and [bio-index-formats](https://github.com/brainstorm/bio-index-formats) need more work.
 
+NOTE: The previous implementation with AWS Athena was shelved due to latency issues.
+
 # Quickstart
 
 To deploy the readId/variantId endpoints in the API Gateway, just run the **serverless.com** deployment script(s).
