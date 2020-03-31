@@ -19,5 +19,5 @@ tokio-io = "0.2.0-alpha.6"
 futures = "0.3.1"
 bytes = "0.5.3"
 
-rusoto_core = { default_features = false, features=["rustls"], version = "0.43.0" }
-rusoto_s3 = { default_features = false, features=["rustls"], version = "0.43.0" }
+rusoto_core = { default_features = false, features=["rustls"], git = "https://github.com/rusoto/rusoto", branch="master" }
+rusoto_s3 = { default_features = false, features=["rustls"], git = "https://github.com/rusoto/rusoto", branch="master" }
