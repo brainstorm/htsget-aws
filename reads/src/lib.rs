@@ -1,5 +1,3 @@
-use std::io::{Read, Write};
-use std::fs::File;
 use std::path::Path;
 use serde::{ Serialize };
 
@@ -8,6 +6,8 @@ use bio_index_formats::csi::{ reg2bin };
 
 use rust_htslib::bam::{ Reader, Read as BamRead };
 use rusoto_s3::{GetObjectRequest, S3Client, S3};
+
+use tokio::io::AsyncReadExt;
 
 // Htsget request/response bodies as described in spec
 // https://samtools.github.io/hts-specs/htsget.html
@@ -96,24 +96,29 @@ pub fn htsget_response(auth: String, byte_range: (u32, u32),
     HtsGetResponseContainer { htsget }
 }
 
+pub fn bam_header(client: S3Client, bucket: String, obj_bam: &Path, bai_refs: &[u8], query: String) -> String {
+    // XXX: factor this out well, take as reference:
+    // https://github.com/holtgrewe/tell-tool/blob/master/lib-scan/src/lib.rs
+    // i.e: bam_reader.header().target_names()[rid as usize]).unwrap();
+    let ref_ids = reference_ids(client, bucket, obj_bam);
+    let ref_id = ref_ids.iter().position(|name| name == &query).unwrap();
+    return bai_refs[ref_id].to_string();
+}
+
 /// Gets the header (first few bytes) from a BAM to translate BAI indexes into names
-pub fn reference_ids(client: S3Client, bucket: String, obj: &Path) -> Vec<String> {
-    let bam_bytes = s3_getobj(client, bucket, obj);
-//    let lambda_bai = Path::new("/tmp/");
+pub fn reference_ids(client: S3Client, bucket: String, key: &Path) -> Vec<String> {
+    let bam_bytes = s3_getobj_to_bytes(client, bucket, key);
 
-//    // From bytes to local lambda file for now since async-await/streaming is painful
-//    let mut file = File::create(obj.file_name().unwrap()).expect("create failed");
-//    file.write_all(&bam_bytes).expect("failed to write BAM to lambda storage");
-
-    let reader = Reader::from_path(lambda_bai).expect("Cannot read BAM file");
+    let reader = Reader::from_path(key).expect("Cannot read BAM file");
 
     reader.header().target_names().into_iter()
         .map(|refname| String::from_utf8_lossy(refname).to_string())
         .collect()
 }
 
-pub fn s3_getobj(client: S3Client, bucket: String, obj: &Path) -> Vec<u8> {
-    let mut buf:Vec<u8> = Vec::new();
+// XXX: Needs to be substituted by s3_open from rust-htslib (for BAMs), should be kept for small index files like .BAI
+pub async fn s3_getobj_to_bytes(s3: S3Client, bucket: String, obj: &Path) -> Vec<u8> {
+    let mut content:Vec<u8> = Vec::new();
 
     let get_req = GetObjectRequest {
         bucket,
@@ -121,11 +126,9 @@ pub fn s3_getobj(client: S3Client, bucket: String, obj: &Path) -> Vec<u8> {
         ..Default::default()
     };
 
-    let result = client
-        .get_object(get_req).sync().expect("Couldn't GET object");
+    s3.get_object(get_req).await
+                                .unwrap().body.unwrap()
+                                .into_async_read().read_to_end(&mut content).await;
 
-    // Convert ByteStream to slice of bytes (&[u8]'s) to buf
-    result.body.map(|astream| astream.into_blocking_read().read_to_end(&mut buf));
-
-    buf
+    content
 }

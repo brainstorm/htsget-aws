@@ -2,7 +2,8 @@ use lambda_http::{lambda, IntoResponse, Request};
 use lambda_runtime::error::HandlerError;
 use lambda_runtime::Context;
 
-use reads::{Format, Class, htsget_response, htsget_request, reference_ids, s3_getobj};
+use reads::{Format, Class, htsget_response, htsget_request,
+                           reference_ids, s3_getobj_to_bytes, bam_header};
 use bio_index_formats::parser_bai::parse_bai;
 
 use rusoto_core::Region;
@@ -36,23 +37,21 @@ fn handler(
     let bucket = "umccr-misc-temp".to_string();
     let obj_bam = Path::new("htsget/htsnexus_test_NA12878.bam");
     let obj_bai = Path::new("htsget/htsnexus_test_NA12878.bam.bai");
-    let chrom = "11".to_string();
+    let query = "11".to_string();
     let chrom_start = 4999976 as u32;
     let chrom_end = 5002147 as u32;
     let auth = "Bearer: foo".to_string();
 
     // Get BAI from AWS
-    let bai = s3_getobj(s3.clone(), bucket.clone(), obj_bai);
+    let bai = s3_getobj_to_bytes(s3.clone(), bucket.clone(), &obj_bai);
 
     // Parse BAI
-    let bai = parse_bai(&bai);
-    let refs = bai.map(|r| r.1.refs).unwrap();
+    let bai_bytes = parse_bai(&bai);
+    let bai_refs = bai_bytes.map(|r| r.1.refs).unwrap();
 
-    // Parse BAM (header only)
-    let ref_ids = reference_ids(s3.clone(), bucket.clone(), obj_bam);
-    let ref_id = ref_ids.iter().position(|name| name == &chrom).unwrap();
-    let reference = &refs[ref_id];
-
+    // Fetch BAM header and correlate with BAI refs
+    let bam_header = bam_header(s3.clone(), bucket.clone(), &obj_bam, bai_refs.clone(), query);
+    
     // Send request and fetch response
     let range = htsget_request(reference, chrom_start, chrom_end);
     let res = htsget_response(auth, range, bucket.clone(), Format::BAM, Class::Body);
