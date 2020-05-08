@@ -4,7 +4,7 @@ use lambda_runtime::Context;
 
 use bio_index_formats::parser_bai::parse_bai;
 use reads::{
-    bam_header, htsget_request, htsget_response, s3_getobj_to_bytes, Class, Format,
+    bam_header, bam_bai_to_ref, htsget_request, htsget_response, s3_getobj_to_bytes, Class, Format,
 };
 
 use rusoto_core::Region;
@@ -12,7 +12,6 @@ use rusoto_s3::S3Client;
 
 //use serde::{ Serialize };
 use serde_json::json;
-use std::path::Path;
 
 // Otherwise the lambda returns "internal" json AWS fields that
 // are not part of the raw htsget payload we want
@@ -40,10 +39,10 @@ async fn handler(_req: Request, _ctx: Context) -> Result<impl IntoResponse, Hand
     let auth = "Bearer: foo".to_string();
 
     // Get BAI from S3 
-    let bai = s3_getobj_to_bytes(s3, bucket.clone(), obj_bai);
+    let bai = s3_getobj_to_bytes(s3, bucket.clone(), obj_bai).await;
 
     // Parse BAI
-    let bai_bytes = parse_bai(&bai.await);
+    let bai_bytes = parse_bai(&bai);
     let bai_refs = bai_bytes.map(|r| r.1.refs).unwrap();
 
     // Fetch BAM header
@@ -53,11 +52,10 @@ async fn handler(_req: Request, _ctx: Context) -> Result<impl IntoResponse, Hand
     );
 
     // Given BAM header and BAI bins, find references
-
-    //reference = bam_bai_to_ref();
+    let reference = bam_bai_to_ref(bam_hdr, bai_refs.clone());
     
     // Send request and fetch response
-    let range = htsget_request(reference, chrom_start, chrom_end);
+    let range = htsget_request(&reference, chrom_start, chrom_end);
     let res = htsget_response(auth, range, bucket.clone(), Format::BAM, Class::Body);
 
     //Ok( CustomOutput{ body: json!(res).to_string() })

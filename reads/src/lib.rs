@@ -1,4 +1,3 @@
-use std::str;
 use url::Url;
 use serde::{ Serialize };
 
@@ -96,33 +95,22 @@ pub fn htsget_response(auth: String, byte_range: (u32, u32),
     HtsGetResponseContainer { htsget }
 }
 
-pub fn bam_header(bucket: String, key: String) -> String {
-    // XXX: factor this out well, take as reference:
-    // https://github.com/holtgrewe/tell-tool/blob/master/lib-scan/src/lib.rs
-    // i.e: bam_reader.header().target_names()[rid as usize]).unwrap();
-    // let ref_ids = reference_ids(client, bucket, obj_bam);
-    // let ref_id = ref_ids.iter().position(|name| name == &query).unwrap();
+pub fn bam_header(bucket: String, key: String) -> Vec<String> {
     let s3_url = Url::parse(&("s3://".to_string() + &bucket + &key)).unwrap();
     let bam_reader = IndexedReader::from_url(&s3_url).unwrap();
 
-    let targets = bam_reader.header().target_names();
-    dbg!(&targets);
-    //let ref_id = targets.iter().position(|name| name == &query).unwrap();
-    str::from_utf8(&targets[1]).unwrap().to_string()
+    let targets = bam_reader.header().target_names().into_iter()
+                            .map(|raw_name| String::from_utf8_lossy(raw_name).to_string())
+                            .collect();
+    return targets;
 }
 
-/// Gets the header (first few bytes) from a BAM to translate BAI indexes into names
-// pub fn reference_ids(client: S3Client, bucket: String, key: &Path) -> Vec<String> {
-//     // let bam_bytes = s3_getobj_to_bytes(client, bucket, key);
+pub fn bam_bai_to_ref(bam_headers: Vec<String>, bai: Vec<Ref>) -> Ref {
+    let bai_ref = bai[1].clone();
+    // let target = bam_headers[bai_ref];
+    return bai_ref;
+}
 
-//     let reader = Reader::from_path(key).expect("Cannot read BAM file");
-
-//     reader.header().target_names().into_iter()
-//         .map(|refname| String::from_utf8_lossy(refname).to_string())
-//         .collect()
-// }
-
-// XXX: Needs to be substituted by s3_open from rust-htslib (for BAMs), should be kept for small index files like .BAI
 pub async fn s3_getobj_to_bytes(s3: S3Client, bucket: String, obj: String) -> Vec<u8> {
     let mut content:Vec<u8> = Vec::new();
 
@@ -137,5 +125,5 @@ pub async fn s3_getobj_to_bytes(s3: S3Client, bucket: String, obj: String) -> Ve
                           .into_async_read()
                           .read_to_end(&mut content).await.unwrap();
 
-    content
+    return content;
 }
