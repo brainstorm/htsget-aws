@@ -105,7 +105,7 @@ pub fn bam_header(bucket: String, key: String) -> Vec<String> {
     return targets;
 }
 
-pub fn bam_bai_to_ref(bam_headers: Vec<String>, bai: Vec<Ref>) -> Ref {
+pub fn bam_bai_to_ref(_bam_headers: Vec<String>, bai: Vec<Ref>) -> Ref {
     let bai_ref = bai[1].clone();
     // let target = bam_headers[bai_ref];
     return bai_ref;

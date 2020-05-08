@@ -1,6 +1,6 @@
-use lambda_http::{lambda, IntoResponse, Request};
-use lambda_runtime::error::HandlerError;
-use lambda_runtime::Context;
+use lambda_http::{handler, lambda, IntoResponse, Request, RequestExt, Response};
+
+type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 use bio_index_formats::parser_bai::parse_bai;
 use reads::{
@@ -20,13 +20,13 @@ use serde_json::json;
 //    body: String,
 //}
 
-fn main() {
-    // Init env logger for debugging: https://www.rusoto.org/debugging.html
-    let _ = env_logger::try_init();
-    lambda!(handler);
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    lambda::run(handler(func)).await?;
+    Ok(())
 }
 
-async fn handler(_req: Request, _ctx: Context) -> Result<impl IntoResponse, HandlerError> {
+async fn func(event: Request) -> Result<impl IntoResponse, Error> {
     let region = Region::default();
     let s3 = S3Client::new(region);
 
