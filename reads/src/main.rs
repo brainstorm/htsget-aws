@@ -1,4 +1,4 @@
-use lambda_http::{handler, lambda, IntoResponse, Request, RequestExt, Response};
+use lambda_http::{handler, lambda, IntoResponse, Request};
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -26,14 +26,14 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-async fn func(event: Request) -> Result<impl IntoResponse, Error> {
+async fn func(_event: Request) -> Result<impl IntoResponse, Error> {
     let region = Region::default();
     let s3 = S3Client::new(region);
 
     let bucket = "umccr-research-temp".to_string();
     let obj_bam = "htsget/htsnexus_test_NA12878.bam".to_string();
     let obj_bai = "htsget/htsnexus_test_NA12878.bam.bai".to_string();
-    let query = "11".to_string();
+    let _query = "11".to_string();
     let chrom_start = 4999976 as u32;
     let chrom_end = 5002147 as u32;
     let auth = "Bearer: foo".to_string();
