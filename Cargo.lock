@@ -786,6 +786,7 @@ dependencies = [
 [[package]]
 name = "hts-sys"
 version = "1.10.2"
+source = "git+https://github.com/brainstorm/rust-htslib.git?branch=musl_support#6e587a64634fbad7a451fc45cf50370d1a37c3ce"
 dependencies = [
  "bindgen",
  "bzip2-sys",
@@ -1797,6 +1798,7 @@ dependencies = [
 [[package]]
 name = "rust-htslib"
 version = "0.30.1-alpha.0"
+source = "git+https://github.com/brainstorm/rust-htslib.git?branch=musl_support#6e587a64634fbad7a451fc45cf50370d1a37c3ce"
 dependencies = [
  "bio-types",
  "bitflags",
@@ -2053,9 +2055,9 @@ checksum = "c7cb5678e1615754284ec264d9bb5b4c27d2018577fd90ac0ceb578591ed5ee4"
 
 [[package]]
 name = "snafu"
-version = "0.6.0"
+version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41207ca11f96a62cd34e6b7fdf73d322b25ae3848eb9d38302169724bb32cf27"
+checksum = "c7f5aed652511f5c9123cf2afbe9c244c29db6effa2abb05c866e965c82405ce"
 dependencies = [
  "doc-comment",
  "snafu-derive",
