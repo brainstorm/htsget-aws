@@ -10,3 +10,4 @@ postgres-data
 .idea
 Cargo.lock
 *.log
+cdk.out
