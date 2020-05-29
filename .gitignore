@@ -9,3 +9,4 @@ vendor
 postgres-data
 .idea
 Cargo.lock
+*.log
