@@ -30,7 +30,7 @@ async fn func(_event: Request) -> Result<impl IntoResponse, Error> {
     let region = Region::default();
     let s3 = S3Client::new(region);
 
-    let bucket = "umccr-research-temp".to_string();
+    let bucket = "umccr-research-dev".to_string();
     let obj_bam = "htsget/htsnexus_test_NA12878.bam".to_string();
     let obj_bai = "htsget/htsnexus_test_NA12878.bam.bai".to_string();
     let _query = "11".to_string();
