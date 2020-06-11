@@ -96,7 +96,7 @@ pub fn htsget_response(auth: String, byte_range: (u32, u32),
 }
 
 pub fn bam_header(bucket: String, key: String) -> Vec<String> {
-    let s3_url = Url::parse(&("s3://".to_string() + &bucket + &key)).unwrap();
+    let s3_url = Url::parse(&("s3://".to_string() + &bucket + "/" + &key)).unwrap();
     let bam_reader = IndexedReader::from_url(&s3_url).unwrap();
 
     let targets = bam_reader.header().target_names().into_iter()
