@@ -26,6 +26,11 @@ rusoto_s3 = { default_features = false, features=["rustls"], git = "https://gith
 [build-dependencies]
 cc = "1.0.52"
 
+#[profile.release]
+#lto = "fat"
+#opt-level = 'z'
+#codegen-units = 1
+
 [[bin]]
 name = "bootstrap"
 path = "src/main.rs"

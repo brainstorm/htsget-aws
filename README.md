@@ -12,18 +12,3 @@ AWS lambdas require MUSL static libraries. To build this project you must use `c
 $ export CFLAGS="-I/usr/local/musl/include"
 $ cross build --target x86_64-unknown-linux-musl
 ```
-
-To deploy the readId/variantId endpoints in the API Gateway, just run the **serverless.com** deployment script(s).
-
-```bash
-$ npx serverless deploy
-```
-
-# Development
-
-Some handy dev shortcuts:
-
-```bash
-$ sls plugin install -n serverless-offline
-$ sls deploy && sls invoke -f reads --path tests/rest/apigw_proxy_request.json
-```
