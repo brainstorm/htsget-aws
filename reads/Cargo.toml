@@ -7,24 +7,24 @@ edition = "2018"
 env_logger = "0.7.1"
 lambda_runtime = "0.2.1"
 lambda_http = { version = "0.2.0-beta.1", git = "https://github.com/awslabs/aws-lambda-rust-runtime" }
-serde = { version = "1.0.110", features = ["derive"] }
-serde_json = "1.0.53"
+serde = { version = "1.0.114", features = ["derive"] }
+serde_json = "1.0.56"
 uuid = { version = "0.8.1", features = ["serde", "v4"] }
 bio_index_formats = { version = "0.1.2", git = "https://github.com/brainstorm/bio-index-formats" }
 rust-htslib = { git = "https://github.com/rust-bio/rust-htslib.git", features = ["s3", "libdeflate"] }
 url = "2.1.1"
 
-tokio = { version = "0.2.19", features = ["full"] }
+tokio = { version = "0.2.22", features = ["full"] }
 tokio-codec = "0.2.0-alpha.6"
 tokio-io = "0.2.0-alpha.6"
 futures = "0.3.5"
-bytes = "0.5.4"
+bytes = "0.5.6"
 
 rusoto_core = { default_features = false, features=["rustls"], git = "https://github.com/rusoto/rusoto", branch="master" }
 rusoto_s3 = { default_features = false, features=["rustls"], git = "https://github.com/rusoto/rusoto", branch="master" }
 
 [build-dependencies]
-cc = "1.0.52"
+cc = "1.0.58"
 
 #[profile.release]
 #lto = "fat"

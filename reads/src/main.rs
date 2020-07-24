@@ -1,4 +1,8 @@
-use lambda_http::{handler, lambda, IntoResponse, Request};
+use lambda_http::{
+    handler,
+    lambda::{self, Context},
+    IntoResponse, Request//, RequestExt, Response,
+};
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -10,15 +14,8 @@ use reads::{
 use rusoto_core::Region;
 use rusoto_s3::S3Client;
 
-//use serde::{ Serialize };
 use serde_json::json;
 
-// Otherwise the lambda returns "internal" json AWS fields that
-// are not part of the raw htsget payload we want
-//#[derive(Serialize)]
-//struct CustomOutput {
-//    body: String,
-//}
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -26,7 +23,7 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-async fn func(_event: Request) -> Result<impl IntoResponse, Error> {
+async fn func(_event: Request, _: Context) -> Result<impl IntoResponse, Error> {
     let region = Region::default();
     let s3 = S3Client::new(region);
 
