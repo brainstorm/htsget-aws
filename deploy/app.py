@@ -9,6 +9,7 @@ from aws_cdk import (
 
 s3c = boto3.client('s3')
 
+CA_BUNDLE="ca.pem"
 BUCKET="umccr-research-dev"
 KEY="htsget/app/reads.zip"
 ASSET="reads.zip"
@@ -32,12 +33,14 @@ class htsgetLambda(core.Stack):
         )
 
         lambda_bucket.grant_read(lambdaFn, "htsget/*")
+        lambdaFn.add_environment("CURL_CA_BUNDLE", CA_BUNDLE)
 
 app = core.App()
 
 # Pack for lambda PROVIDED runtime (must be a .zip)...
 with ZipFile("reads.zip", 'w') as fzip:
-    fzip.write("../target/x86_64-unknown-linux-musl/release/bootstrap", "bootstrap")       
+    fzip.write("../target/x86_64-unknown-linux-musl/release/bootstrap", "bootstrap")
+    fzip.write(CA_BUNDLE)       
 
 # ... and ship it!
 htsgetLambda(app, "htsgetLambda")
