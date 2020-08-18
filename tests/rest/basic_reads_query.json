@@ -3,7 +3,7 @@
   "path": "/chr1",
   "queryStringParameters": {},
   "headers": {
-      "user-agent": "ELB-HealthChecker/2.0"
+      "user-agent": "htsget-aws 0.1.0"
   },
   "body": "",
   "isBase64Encoded": false
