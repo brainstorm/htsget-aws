@@ -32,7 +32,7 @@ class htsgetLambda(core.Stack):
             timeout=core.Duration.seconds(10)
         )
 
-        lambda_bucket.grant_read(lambdaFn, "htsget/*")
+        lambda_bucket.grant_read_write(lambdaFn, "htsget/*")
         lambdaFn.add_environment("CURL_CA_BUNDLE", CA_BUNDLE)
 
 app = core.App()

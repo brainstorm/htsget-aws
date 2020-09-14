@@ -4,6 +4,7 @@ use serde::{ Serialize };
 use bio_index_formats::parser_bai::{coffset, Ref};
 use bio_index_formats::csi::{ reg2bin };
 
+use rust_htslib::htslib;
 use rust_htslib::bam::{IndexedReader, Read };
 use rusoto_s3::{GetObjectRequest, S3Client, S3};
 
@@ -97,7 +98,7 @@ pub fn htsget_response(auth: String, byte_range: (u32, u32),
 
 pub fn bam_header(bucket: String, key: String) -> Vec<String> {
     let s3_url = Url::parse(&("s3://".to_string() + &bucket + "/" + &key)).unwrap();
-    dbg!(&s3_url);
+    hts_set_log_level(10);
     let bam_reader = IndexedReader::from_url(&s3_url).unwrap();
 
     let targets = bam_reader.header().target_names().into_iter()
@@ -127,4 +128,10 @@ pub async fn s3_getobj_to_bytes(s3: S3Client, bucket: String, obj: String) -> Ve
                           .read_to_end(&mut content).await.unwrap();
 
     return content;
+}
+
+pub fn hts_set_log_level(level: u32) {
+    unsafe {
+        htslib::hts_set_log_level(level);
+    }
 }
