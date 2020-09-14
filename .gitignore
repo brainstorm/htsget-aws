@@ -8,6 +8,5 @@ rustfmt.toml
 vendor
 postgres-data
 .idea
-Cargo.lock
 *.log
 cdk.out
