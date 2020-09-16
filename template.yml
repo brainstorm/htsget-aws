@@ -1,0 +1,11 @@
+Resources:
+  htsgetAws:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: htsget-aws
+      Handler: bootstrap
+      Runtime: provided
+      MemorySize: 128
+      CodeUri: .
+    Metadata:
+      BuildMethod: makefile
