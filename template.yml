@@ -3,7 +3,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: htsget-aws
-      Handler: bootstrap
+      Handler: foo
       Runtime: provided
       MemorySize: 128
       CodeUri: .

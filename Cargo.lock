@@ -727,7 +727,7 @@ dependencies = [
 [[package]]
 name = "hts-sys"
 version = "1.10.3"
-source = "git+https://github.com/brainstorm/rust-htslib.git?branch=latest_htslib#346a387a86a46b273668e83bd68bc2b7e38959cf"
+source = "git+https://github.com/brainstorm/rust-htslib.git?branch=htslib_1.11_osx_fix#f92367a707c43bc9dd870e0e127937c9f6e28b11"
 dependencies = [
  "bzip2-sys",
  "cc",
@@ -881,12 +881,6 @@ dependencies = [
  "unicode-bidi",
  "unicode-normalization",
 ]
-
-[[package]]
-name = "ieee754"
-version = "0.2.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9007da9cacbd3e6343da136e98b0d2df013f553d35bdec8b518f07bea768e19c"
 
 [[package]]
 name = "indexmap"
@@ -1694,12 +1688,11 @@ dependencies = [
 [[package]]
 name = "rust-htslib"
 version = "0.32.1-alpha.0"
-source = "git+https://github.com/brainstorm/rust-htslib.git?branch=latest_htslib#346a387a86a46b273668e83bd68bc2b7e38959cf"
+source = "git+https://github.com/brainstorm/rust-htslib.git?branch=htslib_1.11_osx_fix#f92367a707c43bc9dd870e0e127937c9f6e28b11"
 dependencies = [
  "bio-types",
  "custom_derive",
  "hts-sys",
- "ieee754",
  "lazy_static",
  "libc",
  "linear-map",
