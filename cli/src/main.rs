@@ -2,12 +2,6 @@
 extern crate clap;
 
 use clap::{App, Arg, SubCommand};
-use htsget::data::{ ReadsRequest, ReadsResponse };
-
-pub fn htsget_search(_req: ReadsRequest) -> ReadsResponse {
-    // XXX: Should just invoke lambda on bin
-    unimplemented!();
-}
 
 fn main() {
     // CLI definition...
@@ -29,15 +23,7 @@ fn main() {
 
     match matches.subcommand() {
         ("search", Some(_search_args)) => {
-            let igvjs_example = ReadsRequest {
-                url: "http://htsget.umccr.org/v1".to_string(),
-                id: "foo".to_string(),
-                chromosome: "11".to_string(),
-                start: 4999976,
-                end: 5002147,
-            };
-
-            htsget_search(igvjs_example);
+            dbg!("Mockito?");
         },
         ("", None)   => println!("{}", matches.usage()),
         _            => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
