@@ -29,3 +29,29 @@ fn main() {
         _            => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
     }
 }
+
+use httpmock::Method::{GET};
+use httpmock::{Mock, MockServer};
+
+#[test]
+fn example_test() {
+    // Start a local mock server for exclusive use by this test function.
+    let mock_server = MockServer::start();
+
+    // Create a mock on the mock server. The mock will return HTTP status code 200 whenever
+    // the mock server receives a GET-request with path "/hello".
+    let search_mock = Mock::new()
+        .expect_method(GET)
+        .expect_path("/hello")
+        .return_status(200)
+        .create_on(&mock_server);
+
+    // Send an HTTP request to the mock server. This simulates your code.
+    // The mock_server variable is being used to generate a mock server URL for path "/hello".
+    let response = reqwest::get(&mock_server.url("/hello")).await?;
+
+    // Ensure the mock server did respond as specified above.
+    assert_eq!(response.status(), 200);
+    // Ensure the specified mock responded exactly one time.
+    assert_eq!(search_mock.times_called(), 1);
+}
