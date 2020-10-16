@@ -10,3 +10,4 @@ postgres-data
 .idea
 *.log
 cdk.out
+deploy/*.zip
