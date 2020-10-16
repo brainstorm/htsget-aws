@@ -29,32 +29,3 @@ fn main() {
         _            => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
     }
 }
-
-use httpmock::Method::{GET};
-use httpmock::{MockServer};
-extern crate isahc;
-
-#[test]
-fn example_test() {
-    // Start a local mock server for exclusive use by this test function.
-    let server = MockServer::start();
-
-    // Create a mock on the mock server. The mock will return HTTP status code 200 whenever
-    // the mock server receives a GET-request with path "/hello".
-    let search_mock = server.mock(|when, then| {
-        when.method(GET)
-            .path("/reads");
-        then.status(200)
-            .header("Content-Type", "text/html; charset=UTF-8")
-            .body("foo");
-    });
-
-    // Send an HTTP request to the mock server. This simulates your code.
-    // The mock_server variable is being used to generate a mock server URL for path "/hello".
-    let response = isahc::get(&server.url("/reads")).unwrap();
-    
-    // Ensure the specified mock was called exactly one time.
-    search_mock.assert();
-    // Ensure the mock server did respond as specified above.
-    assert_eq!(response.status(), 200);
-}

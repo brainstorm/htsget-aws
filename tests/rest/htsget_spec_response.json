@@ -1,0 +1,31 @@
+{
+   "htsget" : {
+      "format" : "BAM",
+      "urls" : [
+         {
+            "url" : "data:application/vnd.ga4gh.bam;base64,QkFNAQ==",
+            "class" : "header"
+         },
+         {
+            "url" : "https://htsget.blocksrv.example/sample1234/header",
+            "class" : "header"
+         },
+         {
+            "url" : "https://htsget.blocksrv.example/sample1234/run1.bam",
+            "headers" : {
+               "Authorization" : "Bearer xxxx",
+               "Range" : "bytes=65536-1003750"
+             },
+            "class" : "body"
+         },
+         {
+            "url" : "https://htsget.blocksrv.example/sample1234/run1.bam",
+            "headers" : {
+               "Authorization" : "Bearer xxxx",
+               "Range" : "bytes=2744831-9375732"
+            },
+            "class" : "body"
+         }
+      ]
+   }
+}
