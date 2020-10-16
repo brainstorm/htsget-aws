@@ -31,27 +31,30 @@ fn main() {
 }
 
 use httpmock::Method::{GET};
-use httpmock::{Mock, MockServer};
+use httpmock::{MockServer};
+extern crate isahc;
 
 #[test]
 fn example_test() {
     // Start a local mock server for exclusive use by this test function.
-    let mock_server = MockServer::start();
+    let server = MockServer::start();
 
     // Create a mock on the mock server. The mock will return HTTP status code 200 whenever
     // the mock server receives a GET-request with path "/hello".
-    let search_mock = Mock::new()
-        .expect_method(GET)
-        .expect_path("/hello")
-        .return_status(200)
-        .create_on(&mock_server);
+    let search_mock = server.mock(|when, then| {
+        when.method(GET)
+            .path("/reads");
+        then.status(200)
+            .header("Content-Type", "text/html; charset=UTF-8")
+            .body("foo");
+    });
 
     // Send an HTTP request to the mock server. This simulates your code.
     // The mock_server variable is being used to generate a mock server URL for path "/hello".
-    let response = reqwest::get(&mock_server.url("/hello")).await?;
-
+    let response = isahc::get(&server.url("/reads")).unwrap();
+    
+    // Ensure the specified mock was called exactly one time.
+    search_mock.assert();
     // Ensure the mock server did respond as specified above.
     assert_eq!(response.status(), 200);
-    // Ensure the specified mock responded exactly one time.
-    assert_eq!(search_mock.times_called(), 1);
 }
