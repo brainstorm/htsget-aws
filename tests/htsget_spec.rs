@@ -13,16 +13,18 @@ mod tests {
             when.method(GET)
                 .path("/reads/NA12878");
             then.status(200)
-                .header("Content-Type", "application/vnd.ga4gh.htsget.v1.0.0+json; charset=utf-8")
-                .body_from_file("../tests/rest/htsget_spec_response.json");
+                .header("Content-Type", "application/vnd.ga4gh.htsget.v1.0.0+json; charset=utf-8");
+                
         });
 
+        // GET the response...
         let response = isahc::get(&server.url("/reads/NA12878")).unwrap();
         
         // Ensure the specified mock was called exactly one time.
         search_mock.assert();
         // Ensure the mock server did respond as specified above.
         assert_eq!(response.status(), 200);
-        assert_eq!(response.text().unwrap(), "ohi!");
+        assert_eq!(response.text().unwrap(), 
+                   response.body_from_file("../tests/rest/htsget_spec_response.json"));
     }
 }

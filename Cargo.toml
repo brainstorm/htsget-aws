@@ -3,7 +3,6 @@ members = [
     "reads",
     #"variants",
     "cli",
-    "tests",
 ]
 
 # do not optimize proc-macro crates = faster builds from scratch
