@@ -1,7 +1,5 @@
-#[macro_use]
-extern crate clap;
-
 use clap::{App, Arg, SubCommand};
+use clap::{crate_name, crate_version, crate_authors};
 
 fn main() {
     // CLI definition...

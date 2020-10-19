@@ -1,8 +1,6 @@
 [workspace]
 members = [
-    "reads",
-    #"variants",
-    "cli",
+    "htsget-rs",
 ]
 
 # do not optimize proc-macro crates = faster builds from scratch

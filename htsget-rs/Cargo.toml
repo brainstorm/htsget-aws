@@ -1,0 +1,24 @@
+[package]
+name = "htsget-rs"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+# Just barebones clap, no coloring, etc...
+clap = { default-features = false, version = "2.33.0"}
+
+[[bin]]
+name = "reads"
+path = "src/reads/main.rs"
+
+#[[bin]]
+#name = "variants"
+#path = "src/variants/main.rs"
+
+[[bin]]
+name = "client"
+path = "src/client/main.rs"
+
+[[bin]]
+name = "server"
+path = "src/server/main.rs"

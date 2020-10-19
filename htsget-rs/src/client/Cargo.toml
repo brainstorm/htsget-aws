@@ -1,19 +1,13 @@
 [package]
-name = "cli"
+name = "client"
 version = "0.1.0"
 edition = "2018"
-autobins = false
 default-run = "htsget"
 
 [dependencies]
 # Just barebones clap, no coloring, etc...
 clap = { default-features = false, version = "2.33.0"}
 
-[dev-dependencies]
-httpmock = "0.5.0"
-reqwest = { version = "0.10", features = ["json"] }
-isahc = "0.9.10"
-
 [[bin]]
 name = "htsget"
-path = "src/main.rs"
+path = "main.rs"
