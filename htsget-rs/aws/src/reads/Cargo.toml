@@ -18,7 +18,7 @@ tokio = { version = "0.2.22", features = ["full"] }
 tokio-codec = "0.2.0-alpha.6"
 tokio-io = "0.2.0-alpha.6"
 futures = "0.3.5"
-bytes = "0.5.6"
+bytes = "0.6.0"
 
 rusoto_core = { default_features = false, features=["rustls"], git = "https://github.com/rusoto/rusoto", branch="master" }
 rusoto_s3 = { default_features = false, features=["rustls"], git = "https://github.com/rusoto/rusoto", branch="master" }

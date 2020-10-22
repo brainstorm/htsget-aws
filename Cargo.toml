@@ -2,18 +2,3 @@
 members = [
     "htsget-rs",
 ]
-
-# do not optimize proc-macro crates = faster builds from scratch
-[profile.dev.build-override]
-codegen-units = 8
-debug = false
-debug-assertions = false
-opt-level = 0
-overflow-checks = false
-
-[profile.release.build-override]
-codegen-units = 8
-debug = false
-debug-assertions = false
-opt-level = 0
-overflow-checks = false

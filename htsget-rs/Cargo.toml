@@ -5,20 +5,15 @@ edition = "2018"
 
 [dependencies]
 # Just barebones clap, no coloring, etc...
-clap = { default-features = false, version = "2.33.0"}
+clap = { default-features = false, version = "2.33.3"}
+httpmock = "0.5.0"
+#reqwest = { version = "0.10", features = ["json"] }
+isahc = "0.9.10"
 
 [[bin]]
 name = "reads"
-path = "src/reads/main.rs"
+path = "aws/src/reads/main.rs"
 
 #[[bin]]
 #name = "variants"
-#path = "src/variants/main.rs"
-
-[[bin]]
-name = "client"
-path = "src/client/main.rs"
-
-[[bin]]
-name = "server"
-path = "src/server/main.rs"
+#path = "aws/src/variants/main.rs"
