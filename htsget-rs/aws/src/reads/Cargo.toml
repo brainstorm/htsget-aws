@@ -33,4 +33,4 @@ cc = "1.0.61"
 
 [[bin]]
 name = "bootstrap"
-path = "main.rs"
+path = "bin/reads.rs"

@@ -12,7 +12,7 @@ isahc = "0.9.10"
 
 [[bin]]
 name = "reads"
-path = "aws/src/reads/main.rs"
+path = "aws/src/bin/reads.rs"
 
 #[[bin]]
 #name = "variants"
