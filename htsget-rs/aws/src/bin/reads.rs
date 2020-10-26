@@ -7,9 +7,9 @@ use lambda_http::{
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 use bio_index_formats::parser_bai::parse_bai;
-use reads::{
-     bam_header, bam_bai_to_ref, htsget_request, htsget_response, s3_getobj_to_bytes, Class, Format,
-};
+
+//use bam_header;
+// bam_bai_to_ref, htsget_request, htsget_response, s3_getobj_to_bytes, Class, Format;
 
 use rusoto_core::Region;
 use rusoto_s3::S3Client;
