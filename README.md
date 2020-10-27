@@ -11,8 +11,9 @@ A previous implementation leveraging AWS Athena (and ADAM schema) [was shelved d
 AWS lambdas require MUSL static binaries. To build this project you must use `cross` instead of `cargo` (unless you know what you are doing). The deployment is achieved via [AWS CDK Python, please install the appropriate python environment to make it work beforehand](https://aws.amazon.com/blogs/developer/getting-started-with-the-aws-cloud-development-kit-and-python/).
 
 ```
-$ export CFLAGS="-I/usr/local/musl/include"
-$ cross build --target x86_64-unknown-linux-musl
-$ cd deploy && cdk deploy
+$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+$ cargo install cross
+$ cross build --release
+$ cargo test
 ```
 
