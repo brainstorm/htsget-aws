@@ -1,14 +1,15 @@
 use url::Url;
+use std::{path::Path, fs::File, io};
 use serde::{ Serialize };
+
+use noodles_bam as bam;
+use noodles_sam as sam;
+
+use rusoto_core;
+use rusoto_s3::{ GetObjectRequest, S3, S3Client };
 
 use bio_index_formats::parser_bai::{coffset, Ref};
 use bio_index_formats::csi::{ reg2bin };
-
-use rust_htslib::htslib;
-use rust_htslib::bam::{IndexedReader, Read };
-use rusoto_s3::{GetObjectRequest, S3Client, S3};
-
-use tokio::io::AsyncReadExt;
 
 // Htsget request/response bodies as described in spec
 // https://samtools.github.io/hts-specs/htsget.html
@@ -96,42 +97,35 @@ pub fn htsget_response(auth: String, byte_range: (u32, u32),
     HtsGetResponseContainer { htsget }
 }
 
-pub fn bam_header(bucket: String, key: String) -> Vec<String> {
-    let s3_url = Url::parse(&("s3://".to_string() + &bucket + "/" + &key)).unwrap();
-    hts_set_log_level(10);
-    let bam_reader = IndexedReader::from_url(&s3_url).unwrap();
+// pub fn bam_header_from_local(fname: Path) -> io::Result<()> {
 
-    let targets = bam_reader.header().target_names().into_iter()
-                            .map(|raw_name| String::from_utf8_lossy(raw_name).to_string())
-                            .collect();
-    return targets;
-}
+//     let mut reader = File::open(fname).map(bam::Reader::new)?;
+//     let header = reader.read_header()?;
 
-pub fn bam_bai_to_ref(_bam_headers: Vec<String>, bai: Vec<Ref>) -> Ref {
-    let bai_ref = bai[1].clone();
-    // let target = bam_headers[bai_ref];
-    return bai_ref;
-}
+//     if header.is_empty() {
+//         let reference_sequences = reader.read_reference_sequences()?;
+//         let mut builder = sam::Header::builder();
 
-pub async fn s3_getobj_to_bytes(s3: S3Client, bucket: String, obj: String) -> Vec<u8> {
-    let mut content:Vec<u8> = Vec::new();
+//         for reference_sequence in reference_sequences {
+//             builder = builder.add_reference_sequence(reference_sequence);
+//         }
 
-    let get_req = GetObjectRequest {
-        bucket,
-        key: obj,
-        ..Default::default()
-    };
+//         print!("{}", builder.build());
+//     } else {
+//         print!("{}", header);
+//     }
 
-    s3.get_object(get_req).await
-                          .unwrap().body.unwrap()
-                          .into_async_read()
-                          .read_to_end(&mut content).await.unwrap();
+//     Ok(())
+// }
 
-    return content;
-}
+pub async fn bam_header_from_s3(bucket: String, key: String) -> () {
+    let obj = S3Client::new(rusoto_core::Region::default())
+        .get_object(GetObjectRequest { bucket, key, ..GetObjectRequest::default() }
+    );
 
-pub fn hts_set_log_level(level: u32) {
-    unsafe {
-        htslib::hts_set_log_level(level);
-    }
+    // let mut reader = File::open(src).map(bam::Reader::new)?;
+    // let reference_sequences = reader.read_reference_sequences()?;
+    // let header = reader.read_header()?;
+
+    //return header;
 }
