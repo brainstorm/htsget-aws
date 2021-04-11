@@ -5,22 +5,18 @@ edition = "2018"
 
 [dependencies]
 noodles-bam = { git = "https://github.com/zaeleus/noodles" }
-noodles-sam = { git = "https://github.com/zaeleus/noodles" }
-rusoto_core = "0.46.0"
-rusoto_s3 = "0.46.0"
-env_logger = "0.8.2"
 lambda_runtime = { version = "0.3.0" }
 lambda_http = { version = "0.3.0" }
 serde = { version = "1.0.123", features = ["derive"] }
 serde_json = "1.0.62"
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
-bio_index_formats = { version = "0.1.2", git = "https://github.com/brainstorm/bio-index-formats" }
-url = "2.2.0"
+url = "2.2.1"
+tokio = "1.4.0"
 
 # Just barebones clap, no coloring, etc...
 clap = { default-features = false, version = "2.33.3"}
-httpmock = "0.5.5"
-isahc = "1.1.0"
+httpmock = "0.5.7"
+isahc = "1.2.0"
 
 [[bin]]
 name = "bootstrap"

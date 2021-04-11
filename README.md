@@ -1,8 +1,8 @@
 # Serverless htsget
 
-This repository is an ongoing htsget serverless implementation, using AWS lambdas and Rust as a runtime. 
+This repository is an ongoing htsget serverless implementation, using AWS lambdas and Rust as a runtime. A more active fork is currently being worked on [htsget-mvp](https://github.com/chris-zen/htsget-mvp), as part of the Google Summer of Code 2021.
 
-See [s3-rust-htslib-bam](https://github.com/brainstorm/s3-rust-htslib-bam) repository for a more bare-bones proof of concept on how to run generic file-format/htslib oriented Bioinformatics on Lambda!
+See [s3-rust-noodles-bam](https://github.com/umccr/s3-rust-noodles-bam) repository for a more bare-bones proof of concept on how to run generic file-format/htslib oriented Bioinformatics on Lambda!
 
 A previous implementation leveraging AWS Athena (and ADAM schema) [was shelved due to latency issues, feel free to have a look at the code on that branch](https://github.com/brainstorm/htsget-aws/tree/athena).
 

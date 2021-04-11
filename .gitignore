@@ -11,3 +11,4 @@ postgres-data
 *.log
 cdk.out
 deploy/*.zip
+.aws-sam
